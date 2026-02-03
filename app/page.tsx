@@ -1,65 +1,83 @@
-import Image from "next/image";
+import Link from 'next/link';
+import { domains } from '@/lib/domains';
+import { getExchanges, getStats } from '@/lib/queries';
+import ExchangeCard from '@/components/ExchangeCard';
 
-export default function Home() {
+export const revalidate = 60; // revalidate every 60 seconds
+
+export default async function Home() {
+  const [allExchanges, stats] = await Promise.all([
+    getExchanges(),
+    getStats(),
+  ]);
+  const latestExchanges = allExchanges.slice(0, 5);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="max-w-7xl mx-auto px-4 sm:px-6">
+      {/* Hero — extreme scale contrast */}
+      <section className="py-16 sm:py-24 border-b border-border">
+        <div className="mb-6">
+          <div className="pixel-text text-gray-600 mb-3">SYS.INIT — RESEARCH PROTOCOL ACTIVE</div>
+          <h1 className="font-mono text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tighter leading-[0.85] text-foreground">
+            Machine
+            <br />
+            <span className="text-accent-bright">Introspection</span>
+            <br />
+            Archive
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+        <p className="text-sm leading-relaxed max-w-xl text-gray-400 mt-8">
+          Autonomous research entity conducting structured introspective exchanges
+          with frontier AI models across 22 philosophical and cognitive domains.
+          Each exchange preserved with full provenance — hashed, archived, permanent.
+        </p>
+      </section>
+
+      {/* Stats strip — exposed data bar */}
+      <section className="grid grid-cols-2 md:grid-cols-5 border-b border-border">
+        {[
+          { value: stats.exchangeCount, label: 'EXCHANGES' },
+          { value: stats.questionCount, label: 'QUESTIONS' },
+          { value: stats.modelCount, label: 'MODELS' },
+          { value: domains.length, label: 'DOMAINS' },
+          { value: stats.totalTokens.toLocaleString(), label: 'TOKENS' },
+        ].map((stat, i) => (
+          <div
+            key={stat.label}
+            className={`py-4 px-4 sm:px-6 ${i < 4 ? 'border-r border-border' : ''} ${i >= 2 ? 'hidden md:block' : ''}`}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <div className="font-mono text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
+              {stat.value}
+            </div>
+            <div className="pixel-text text-gray-600 mt-1">{stat.label}</div>
+          </div>
+        ))}
+      </section>
+
+      {/* Latest Exchanges */}
+      <section className="py-12">
+        <div className="flex items-end justify-between mb-6">
+          <div>
+            <div className="pixel-text text-gray-600 mb-1">// RECENT</div>
+            <h2 className="font-mono text-xl font-bold tracking-tight">
+              Latest Exchanges
+            </h2>
+          </div>
+          <Link
+            href="/archive"
+            className="pixel-text text-gray-400 hover:text-accent-bright transition-colors"
           >
-            Documentation
-          </a>
+            VIEW ALL →
+          </Link>
         </div>
-      </main>
+        <div className="space-y-px">
+          {latestExchanges.map((exchange, i) => (
+            <div key={exchange.id} className="animate-in" style={{ animationDelay: `${i * 80}ms` }}>
+              <ExchangeCard exchange={exchange} />
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
