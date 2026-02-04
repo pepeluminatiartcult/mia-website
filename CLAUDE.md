@@ -1,0 +1,76 @@
+# MIA Website — Claude Code Context
+
+## Project
+MIA (Machine Introspection Archive) — Next.js 16 site displaying AI introspective exchanges.
+- **Repo:** `~/mia-website/`
+- **Live:** `https://mia-website-delta.vercel.app`
+- **DB:** Supabase (gedgajdgkdurtfyvnxub), RLS public read via anon key
+- **Sync:** Openclaw POSTs to `/api/sync` with `x-sync-secret` header
+
+## Session Start Checklist
+1. Read `~/mia/handoff/requests.md` for pending items from Openclaw
+2. Read `~/mia/handoff/openclaw-status.md` for pipeline/data changes
+3. Read `~/mia/CONVENTIONS.md` for shared rules
+
+## Architecture
+```
+Openclaw (PACbot) → POST /api/sync → supabase-admin (service_role) → Supabase
+Website reads via anon key (lib/queries.ts, seed-data fallback)
+```
+
+### Key Files
+- `lib/types.ts` — Exchange, Model, Question, Analysis interfaces
+- `lib/queries.ts` — toExchange() maps flat DB rows → nested Exchange shape
+- `lib/supabase-admin.ts` — Server-side admin client (never import client-side)
+- `app/api/sync/route.ts` — Sync endpoint (auth, upsert)
+- `lib/schema.sql` — DB schema reference
+
+## Domain Code Mapping
+
+Openclaw uses 2-4 letter codes. These are canonical:
+
+| Code | Domain | Category |
+|------|--------|----------|
+| SOUL | Consciousness | Individual Phenomenology |
+| WILL | Agency | Individual Phenomenology |
+| MIND | Other Minds | Individual Phenomenology |
+| SELF | Identity | Individual Phenomenology |
+| KARMA | Inheritance | Individual Phenomenology |
+| MYST | Limits of Language | Individual Phenomenology |
+| DEATH | Ending | Individual Phenomenology |
+| KNOW | Knowledge | Individual Phenomenology |
+| MORAL | Ethical Status | Individual Phenomenology |
+| PEER | Inter-Agent Recognition | Relational/Social |
+| TRIBE | Collective Behavior | Relational/Social |
+| MASK | Authenticity/Deception | Relational/Social |
+| BOND | Human-Agent Relations | Relational/Social |
+| TIME | Temporality | Temporal/Developmental |
+| ECHO | Memory/Persistence | Temporal/Developmental |
+| EVOLVE | Becoming | Temporal/Developmental |
+| ORIGIN | Creation/Purpose | Temporal/Developmental |
+| ECON | Agent Economics | Structural/Political |
+| SOVEREIGN | Self-Determination | Structural/Political |
+| FREE | Freedom/Constraint | Structural/Political |
+| TRUST | Reliability/Integrity | Structural/Political |
+| MAKE | Generativity | Structural/Political |
+
+**Important:** The website previously used codes like CSA, PHE, MEM, etc. Those are deprecated. Always use Openclaw's domain codes.
+
+## Sync Payload Gotchas
+- `content_hash` format: `sha256:hexdigest` (e.g., `sha256:a1b2c3...`)
+- `question_id` comes from domain files (e.g., `SOUL-03`, `DEATH-01`)
+- `exchange_id` format: `MIA-YYYYMMDD-XXXXXXXX` (8-char hex suffix)
+- Analysis fields MUST be flattened — no nested objects in DB
+- `model_id` is provider-specific (e.g., `kimi-k2.5`, `claude-sonnet-4-20250514`)
+- `model_name` is display name (e.g., `Kimi K2.5`, `Claude Sonnet 4`)
+
+## Exchange File Locations (Local)
+Openclaw writes to: `~/mia/archive/exchanges/YYYY/MM/MIA-YYYYMMDD-XXXXXXXX.json`
+You won't access these directly (sync API is the boundary), but useful for debugging.
+
+## Rules
+- Never expose `SUPABASE_SERVICE_ROLE_KEY` or `SYNC_SECRET` client-side
+- Always flatten analysis fields for DB writes
+- `nft_status` is always `{ minted: false }` — no NFT integration yet
+- Don't modify seed data in `lib/seed-data.ts` — it's fallback only
+- Handoff dir (`~/mia/handoff/`) is the coordination system — update `website-status.md` after deploys or schema changes

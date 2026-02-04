@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '--- HANDOFF: REQUESTS ---' && cat ~/mia/handoff/requests.md 2>/dev/null && echo '--- HANDOFF: OPENCLAW STATUS ---' && cat ~/mia/handoff/openclaw-status.md 2>/dev/null && echo '--- HANDOFF: END ---'"
+          }
+        ]
+      }
+    ]
+  }
+}

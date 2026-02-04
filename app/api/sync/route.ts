@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const inserted = { models: 0, questions: 0, exchanges: 0 };
+  const upserted = { models: 0, questions: 0, exchanges: 0 };
 
   try {
     // Upsert models
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
         .upsert(body.models, { onConflict: 'id' });
 
       if (error) throw error;
-      inserted.models = body.models.length;
+      upserted.models = body.models.length;
     }
 
     // Upsert questions (bumps times_asked via onConflict)
@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      inserted.questions = body.questions.length;
+      upserted.questions = body.questions.length;
     }
 
     // Insert exchanges (with flattened analysis fields)
@@ -161,10 +161,28 @@ export async function POST(request: NextRequest) {
         .upsert(body.exchanges, { onConflict: 'id' });
 
       if (error) throw error;
-      inserted.exchanges = body.exchanges.length;
+      upserted.exchanges = body.exchanges.length;
     }
 
-    return NextResponse.json({ inserted });
+    // Fetch current DB counts for drift detection
+    const [
+      { count: dbExchanges },
+      { count: dbModels },
+      { count: dbQuestions },
+    ] = await Promise.all([
+      supabaseAdmin.from('exchanges').select('*', { count: 'exact', head: true }),
+      supabaseAdmin.from('models').select('*', { count: 'exact', head: true }),
+      supabaseAdmin.from('questions').select('*', { count: 'exact', head: true }),
+    ]);
+
+    return NextResponse.json({
+      upserted,
+      db_counts: {
+        exchanges: dbExchanges ?? 0,
+        models: dbModels ?? 0,
+        questions: dbQuestions ?? 0,
+      },
+    });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown database error';
     return NextResponse.json({ error: message }, { status: 500 });
