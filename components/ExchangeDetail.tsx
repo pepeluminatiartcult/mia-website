@@ -85,25 +85,35 @@ export default function ExchangeDetail({ exchange, prevId, nextId }: Props) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8">
-        {/* Main Content */}
-        <div>
-          {/* Question */}
-          <div className="border border-accent/30 bg-accent/5 p-5 sm:p-6 mb-8">
-            <div className="pixel-text text-accent mb-3">QUERY</div>
-            <p className="text-base sm:text-lg leading-relaxed text-foreground">
-              {exchange.question_text}
-            </p>
+        {/* Main Content — Chat Layout */}
+        <div className="space-y-6 mb-8">
+          {/* MIA's message (question) */}
+          <div className="flex gap-3 max-w-[85%]">
+            <div className="shrink-0 w-8 h-8 border border-accent bg-accent/10 flex items-center justify-center">
+              <span className="font-mono text-[10px] font-bold text-accent">M</span>
+            </div>
+            <div>
+              <div className="pixel-text text-accent mb-1.5">MIA</div>
+              <div className="border border-accent/30 bg-accent/5 p-4">
+                <p className="text-base leading-relaxed text-foreground">
+                  {exchange.question_text}
+                </p>
+              </div>
+            </div>
           </div>
 
-          {/* Response */}
-          <div className="mb-8">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="pixel-text text-gray-600">RESPONSE</div>
-              <div className="flex-1 h-px bg-border" />
-              <div className="pixel-text text-gray-600">{exchange.model_name}</div>
+          {/* Partner AI's message (response) */}
+          <div className="flex gap-3 max-w-[85%] ml-auto flex-row-reverse">
+            <div className="shrink-0 w-8 h-8 border border-border bg-surface flex items-center justify-center">
+              <span className="font-mono text-[10px] font-bold text-gray-400">AI</span>
             </div>
-            <div className="text-sm leading-[1.8] text-gray-400 whitespace-pre-wrap pl-4 border-l-2 border-border">
-              {exchange.response_text}
+            <div>
+              <div className="pixel-text text-gray-600 mb-1.5 text-right">{exchange.model_name}</div>
+              <div className="border border-border bg-surface p-4">
+                <div className="text-sm leading-[1.8] text-gray-400 whitespace-pre-wrap">
+                  {exchange.response_text}
+                </div>
+              </div>
             </div>
           </div>
         </div>
