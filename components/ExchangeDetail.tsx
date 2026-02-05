@@ -25,15 +25,18 @@ interface Props {
 }
 
 export default function ExchangeDetail({ exchange, prevId, nextId }: Props) {
-  const date = new Date(exchange.created_at).toLocaleDateString('en-US', {
+  const dt = new Date(exchange.created_at);
+  const date = dt.toLocaleDateString('en-US', {
     year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    timeZone: 'UTC',
   });
-
-  const time = new Date(exchange.created_at).toLocaleTimeString('en-US', {
+  const time = dt.toLocaleTimeString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
+    hour12: false,
+    timeZone: 'UTC',
     timeZoneName: 'short',
   });
 

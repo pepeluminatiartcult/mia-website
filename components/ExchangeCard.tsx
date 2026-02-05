@@ -2,10 +2,19 @@ import Link from 'next/link';
 import { Exchange } from '@/lib/types';
 
 export default function ExchangeCard({ exchange }: { exchange: Exchange }) {
-  const date = new Date(exchange.created_at).toLocaleDateString('en-US', {
+  const dt = new Date(exchange.created_at);
+  const date = dt.toLocaleDateString('en-US', {
     year: 'numeric',
-    month: 'short',
-    day: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    timeZone: 'UTC',
+  });
+  const time = dt.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    timeZone: 'UTC',
+    timeZoneName: 'short',
   });
 
   return (
@@ -23,7 +32,7 @@ export default function ExchangeCard({ exchange }: { exchange: Exchange }) {
           </span>
         </div>
         <span className="pixel-text text-gray-600 shrink-0">
-          {date}
+          {date} {time}
         </span>
       </div>
 
