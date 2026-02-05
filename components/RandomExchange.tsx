@@ -86,12 +86,11 @@ export default function RandomExchange({ initialExchange, allExchanges }: Props)
 
       {/* Header */}
       <div className="mb-8 pb-6 border-b border-gray-300">
-        <Link
-          href={`/exchange/${exchange.id}`}
-          className="font-sans text-4xl sm:text-5xl font-bold tracking-tighter text-accent-bright glitch-hover hover:underline"
-        >
-          {exchange.id}
-        </Link>
+        <h1 className="font-sans text-4xl sm:text-5xl font-bold tracking-tighter text-accent-bright glitch-hover">
+          <Link href={`/exchange/${exchange.id}`} className="hover:underline">
+            {exchange.id}
+          </Link>
+        </h1>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8">
