@@ -38,6 +38,11 @@ interface SyncPayload {
     notable_claims: string[];
     created_at?: string;
   }[];
+  delete?: {
+    exchanges?: string[];
+    models?: string[];
+    questions?: string[];
+  };
 }
 
 export async function POST(request: NextRequest) {
@@ -54,14 +59,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  if (!body.models && !body.questions && !body.exchanges) {
+  if (!body.models && !body.questions && !body.exchanges && !body.delete) {
     return NextResponse.json(
-      { error: 'Payload must include at least one of: models, questions, exchanges' },
+      { error: 'Payload must include at least one of: models, questions, exchanges, delete' },
       { status: 400 }
     );
   }
 
   const upserted = { models: 0, questions: 0, exchanges: 0 };
+  const deleted = { models: 0, questions: 0, exchanges: 0 };
 
   try {
     // Upsert models
@@ -164,6 +170,39 @@ export async function POST(request: NextRequest) {
       upserted.exchanges = body.exchanges.length;
     }
 
+    // Delete records if requested
+    if (body.delete) {
+      if (body.delete.exchanges && body.delete.exchanges.length > 0) {
+        const { error } = await supabaseAdmin
+          .from('exchanges')
+          .delete()
+          .in('id', body.delete.exchanges);
+
+        if (error) throw error;
+        deleted.exchanges = body.delete.exchanges.length;
+      }
+
+      if (body.delete.questions && body.delete.questions.length > 0) {
+        const { error } = await supabaseAdmin
+          .from('questions')
+          .delete()
+          .in('id', body.delete.questions);
+
+        if (error) throw error;
+        deleted.questions = body.delete.questions.length;
+      }
+
+      if (body.delete.models && body.delete.models.length > 0) {
+        const { error } = await supabaseAdmin
+          .from('models')
+          .delete()
+          .in('id', body.delete.models);
+
+        if (error) throw error;
+        deleted.models = body.delete.models.length;
+      }
+    }
+
     // Fetch current DB counts for drift detection
     const [
       { count: dbExchanges },
@@ -177,6 +216,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       upserted,
+      deleted,
       db_counts: {
         exchanges: dbExchanges ?? 0,
         models: dbModels ?? 0,
