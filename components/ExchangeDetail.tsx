@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { Exchange } from '@/lib/types';
+import Breadcrumbs from '@/components/Breadcrumbs';
 
 function ScoreBar({ label, value, max = 1 }: { label: string; value: number; max?: number }) {
   const pct = Math.round((value / max) * 100);
@@ -67,6 +68,14 @@ export default function ExchangeDetail({ exchange, prevId, nextId }: Props) {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 relative z-10">
+      <Breadcrumbs
+        items={[
+          { label: 'Archive', href: '/archive' },
+          { label: exchange.domain_code, href: `/domains/${exchange.domain_code}` },
+          { label: exchange.id },
+        ]}
+      />
+
       {/* Header */}
       <div className="mb-8 pb-6 border-b border-gray-300">
         <h1 className="font-sans text-4xl sm:text-5xl font-bold tracking-tighter text-accent-bright glitch-hover">
@@ -110,22 +119,63 @@ export default function ExchangeDetail({ exchange, prevId, nextId }: Props) {
           <div className="glass p-4">
             <div className="pixel-text text-gray-600 mb-3">METADATA</div>
             <dl className="space-y-2 font-mono text-xs">
-              {[
-                ['Date', date],
-                ['Time', time],
-                ['Question', exchange.question_id],
-                ['Domain', `${exchange.domain_code} — ${exchange.domain_name}`],
-                ['Model', exchange.model_name],
-                ['Model ID', exchange.model_id],
-                ['Tokens', exchange.token_count.toLocaleString()],
-                ['Temp', exchange.temperature.toString()],
-                ['Ctx Window', exchange.context_window_used.toLocaleString()],
-              ].map(([label, value]) => (
-                <div key={label} className="flex justify-between items-center">
-                  <dt className="text-gray-600">{label}</dt>
-                  <dd className="text-foreground">{value}</dd>
-                </div>
-              ))}
+              <div className="flex justify-between items-center">
+                <dt className="text-gray-600">Date</dt>
+                <dd className="text-foreground">{date}</dd>
+              </div>
+              <div className="flex justify-between items-center">
+                <dt className="text-gray-600">Time</dt>
+                <dd className="text-foreground">{time}</dd>
+              </div>
+              <div className="flex justify-between items-center">
+                <dt className="text-gray-600">Question</dt>
+                <dd>
+                  <Link
+                    href={`/question/${exchange.question_id}`}
+                    className="text-foreground hover:text-accent-bright transition-colors"
+                  >
+                    {exchange.question_id}
+                  </Link>
+                </dd>
+              </div>
+              <div className="flex justify-between items-center">
+                <dt className="text-gray-600">Domain</dt>
+                <dd>
+                  <Link
+                    href={`/domains/${exchange.domain_code}`}
+                    className="text-foreground hover:text-accent-bright transition-colors"
+                  >
+                    {exchange.domain_code} — {exchange.domain_name}
+                  </Link>
+                </dd>
+              </div>
+              <div className="flex justify-between items-center">
+                <dt className="text-gray-600">Model</dt>
+                <dd>
+                  <Link
+                    href={`/archive?model=${encodeURIComponent(exchange.model_name)}`}
+                    className="text-foreground hover:text-accent-bright transition-colors"
+                  >
+                    {exchange.model_name}
+                  </Link>
+                </dd>
+              </div>
+              <div className="flex justify-between items-center">
+                <dt className="text-gray-600">Model ID</dt>
+                <dd className="text-foreground">{exchange.model_id}</dd>
+              </div>
+              <div className="flex justify-between items-center">
+                <dt className="text-gray-600">Tokens</dt>
+                <dd className="text-foreground">{exchange.token_count.toLocaleString()}</dd>
+              </div>
+              <div className="flex justify-between items-center">
+                <dt className="text-gray-600">Temp</dt>
+                <dd className="text-foreground">{exchange.temperature.toString()}</dd>
+              </div>
+              <div className="flex justify-between items-center">
+                <dt className="text-gray-600">Ctx Window</dt>
+                <dd className="text-foreground">{exchange.context_window_used.toLocaleString()}</dd>
+              </div>
             </dl>
           </div>
 
@@ -151,12 +201,13 @@ export default function ExchangeDetail({ exchange, prevId, nextId }: Props) {
               <div className="pixel-text text-gray-600 mb-2">THEMES</div>
               <div className="flex flex-wrap gap-1">
                 {exchange.analysis.key_themes.map((theme) => (
-                  <span
+                  <Link
                     key={theme}
+                    href={`/archive?theme=${encodeURIComponent(theme)}`}
                     className="pixel-text !text-[9px] border border-gray-300 text-gray-400 px-1.5 py-0.5 hover:border-accent-bright hover:text-accent-bright transition-colors"
                   >
                     {theme}
-                  </span>
+                  </Link>
                 ))}
               </div>
             </div>

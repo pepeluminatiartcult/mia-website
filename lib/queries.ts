@@ -88,6 +88,35 @@ export async function getExchangesByModel(modelId: string): Promise<Exchange[]> 
   return data.map(toExchange);
 }
 
+export async function getExchangesByQuestion(questionId: string): Promise<Exchange[]> {
+  const { data, error } = await supabase
+    .from('exchanges')
+    .select('*')
+    .eq('question_id', questionId)
+    .order('created_at', { ascending: false });
+
+  if (error || !data || data.length === 0) {
+    return seedExchanges.filter(e => e.question_id === questionId);
+  }
+
+  return data.map(toExchange);
+}
+
+export async function getQuestionById(questionId: string): Promise<Question | null> {
+  const { data, error } = await supabase
+    .from('questions')
+    .select('*')
+    .eq('id', questionId)
+    .single();
+
+  if (error || !data) {
+    const seed = seedQuestions.find(q => q.id === questionId);
+    return seed || null;
+  }
+
+  return data as Question;
+}
+
 export async function getModels(): Promise<Model[]> {
   const { data, error } = await supabase
     .from('models')

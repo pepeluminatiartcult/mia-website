@@ -36,7 +36,7 @@ export default function ExchangeCard({ exchange }: { exchange: Exchange }) {
         </span>
       </div>
 
-      <p className="font-mono text-sm leading-relaxed text-gray-400 group-hover:text-foreground transition-colors mb-3 line-clamp-2">
+      <p className="font-mono text-sm leading-relaxed text-gray-400 group-hover:text-foreground transition-colors mb-3 line-clamp-3 sm:line-clamp-2">
         {exchange.question_text}
       </p>
 

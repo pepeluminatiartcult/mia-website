@@ -1,9 +1,9 @@
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import { domains, getDomainByCode } from '@/lib/domains';
 import { getExchangesByDomain } from '@/lib/queries';
 import ExchangeCard from '@/components/ExchangeCard';
 import CollageBackground from '@/components/CollageBackground';
+import Breadcrumbs from '@/components/Breadcrumbs';
 
 export function generateStaticParams() {
   return domains.map(d => ({ code: d.code }));
@@ -23,12 +23,12 @@ export default async function DomainPage({ params }: { params: Promise<{ code: s
     <>
       <CollageBackground seed={code} density="sparse" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 relative z-10">
-        <Link
-          href="/domains"
-          className="pixel-text text-gray-600 hover:text-accent-bright transition-colors mb-6 inline-block"
-        >
-          &larr; ALL DOMAINS
-        </Link>
+        <Breadcrumbs
+          items={[
+            { label: 'Domains', href: '/domains' },
+            { label: domain.code },
+          ]}
+        />
 
         <div className="mb-8 pb-6 border-b border-gray-300">
           <div className="flex flex-col sm:flex-row sm:items-end gap-2 sm:gap-4 mb-2">
