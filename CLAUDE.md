@@ -22,7 +22,7 @@ Website reads via anon key (lib/queries.ts, seed-data fallback)
 - `lib/types.ts` — Exchange, Model, Question, Analysis interfaces
 - `lib/queries.ts` — toExchange() maps flat DB rows → nested Exchange shape
 - `lib/supabase-admin.ts` — Server-side admin client (never import client-side)
-- `app/api/sync/route.ts` — Sync endpoint (auth, upsert)
+- `app/api/sync/route.ts` — Sync endpoint (auth, upsert, delete)
 - `lib/schema.sql` — DB schema reference
 
 ## Domain Code Mapping
@@ -55,6 +55,28 @@ Openclaw uses 2-4 letter codes. These are canonical:
 | MAKE | Generativity | Structural/Political |
 
 **Important:** The website previously used codes like CSA, PHE, MEM, etc. Those are deprecated. Always use Openclaw's domain codes.
+
+## Sync API
+
+**Endpoint:** `POST /api/sync`
+**Auth:** `x-sync-secret` header
+
+**Payload fields (all optional):**
+- `models[]` — upsert models
+- `questions[]` — upsert questions (increments times_asked)
+- `exchanges[]` — upsert exchanges
+- `delete.exchanges[]` — delete exchanges by ID
+- `delete.questions[]` — delete questions by ID
+- `delete.models[]` — delete models by ID
+
+**Response:**
+```json
+{
+  "upserted": { "models": 0, "questions": 0, "exchanges": 0 },
+  "deleted": { "models": 0, "questions": 0, "exchanges": 0 },
+  "db_counts": { "models": 8, "questions": 13, "exchanges": 23 }
+}
+```
 
 ## Sync Payload Gotchas
 - `content_hash` format: `sha256:hexdigest` (e.g., `sha256:a1b2c3...`)
