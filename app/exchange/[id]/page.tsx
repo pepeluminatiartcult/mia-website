@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getExchangeById, getExchanges } from '@/lib/queries';
 import ExchangeDetail from '@/components/ExchangeDetail';
+import RelatedExchanges, { computeRelatedExchanges } from '@/components/RelatedExchanges';
 import CollageBackground from '@/components/CollageBackground';
 
 export const revalidate = 60;
@@ -56,10 +57,15 @@ export default async function ExchangePage({ params }: { params: Promise<{ id: s
   const prevId = currentIndex > 0 ? allExchanges[currentIndex - 1].id : null;
   const nextId = currentIndex < allExchanges.length - 1 ? allExchanges[currentIndex + 1].id : null;
 
+  const relatedExchanges = computeRelatedExchanges(exchange, allExchanges, 5);
+
   return (
     <>
       <CollageBackground seed={exchange.id} density="sparse" />
       <ExchangeDetail exchange={exchange} prevId={prevId} nextId={nextId} />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-8 relative z-10">
+        <RelatedExchanges related={relatedExchanges} />
+      </div>
     </>
   );
 }
