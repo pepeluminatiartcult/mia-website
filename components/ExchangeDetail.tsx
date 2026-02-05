@@ -69,22 +69,9 @@ export default function ExchangeDetail({ exchange, prevId, nextId }: Props) {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 relative z-10">
       {/* Header */}
       <div className="mb-8 pb-6 border-b border-gray-300">
-        <div className="pixel-text text-gray-600 mb-2">// EXCHANGE</div>
-        <div className="flex flex-col sm:flex-row sm:items-end gap-2 sm:gap-4">
-          <h1 className="font-sans text-4xl sm:text-5xl font-bold tracking-tighter text-accent-bright glitch-hover">
-            {exchange.id}
-          </h1>
-          <div className="flex items-center gap-3 mb-1">
-            <span className="pixel-text text-gray-400">{date}</span>
-            <span className="pixel-text text-gray-600">{time}</span>
-          </div>
-        </div>
-        <Link
-          href={`/domains/${exchange.domain_code}`}
-          className="inline-block mt-2 pixel-text text-gray-400 hover:text-accent-bright transition-colors"
-        >
-          [{exchange.domain_code}] {exchange.domain_name}
-        </Link>
+        <h1 className="font-sans text-4xl sm:text-5xl font-bold tracking-tighter text-accent-bright glitch-hover">
+          {exchange.id}
+        </h1>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8">
