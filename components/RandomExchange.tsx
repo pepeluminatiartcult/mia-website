@@ -1,8 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { Exchange } from '@/lib/types';
-import Breadcrumbs from '@/components/Breadcrumbs';
 
 function ScoreBar({ label, value, max = 1 }: { label: string; value: number; max?: number }) {
   const pct = Math.round((value / max) * 100);
@@ -20,12 +20,13 @@ function ScoreBar({ label, value, max = 1 }: { label: string; value: number; max
 }
 
 interface Props {
-  exchange: Exchange;
-  prevId?: string | null;
-  nextId?: string | null;
+  initialExchange: Exchange;
+  allExchanges: Exchange[];
 }
 
-export default function ExchangeDetail({ exchange, prevId, nextId }: Props) {
+export default function RandomExchange({ initialExchange, allExchanges }: Props) {
+  const [exchange, setExchange] = useState(initialExchange);
+
   const dt = new Date(exchange.created_at);
   const date = dt.toLocaleDateString('en-US', {
     year: 'numeric',
@@ -40,6 +41,11 @@ export default function ExchangeDetail({ exchange, prevId, nextId }: Props) {
     timeZone: 'UTC',
     timeZoneName: 'short',
   });
+
+  function handleRandomize() {
+    const randomIndex = Math.floor(Math.random() * allExchanges.length);
+    setExchange(allExchanges[randomIndex]);
+  }
 
   function handleShare(platform: 'twitter' | 'copy') {
     const url = `${window.location.origin}/exchange/${exchange.id}`;
@@ -68,19 +74,24 @@ export default function ExchangeDetail({ exchange, prevId, nextId }: Props) {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 relative z-10">
-      <Breadcrumbs
-        items={[
-          { label: 'Archive', href: '/archive' },
-          { label: exchange.domain_code, href: `/domains/${exchange.domain_code}` },
-          { label: exchange.id },
-        ]}
-      />
+      {/* Randomize Button */}
+      <div className="mb-8">
+        <button
+          onClick={handleRandomize}
+          className="glass px-6 py-3 font-mono text-sm text-foreground hover:bg-accent-bright/20 hover:text-accent-bright transition-all cursor-pointer"
+        >
+          RANDOMIZE
+        </button>
+      </div>
 
       {/* Header */}
       <div className="mb-8 pb-6 border-b border-gray-300">
-        <h1 className="font-sans text-4xl sm:text-5xl font-bold tracking-tighter text-accent-bright glitch-hover">
+        <Link
+          href={`/exchange/${exchange.id}`}
+          className="font-sans text-4xl sm:text-5xl font-bold tracking-tighter text-accent-bright glitch-hover hover:underline"
+        >
           {exchange.id}
-        </h1>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8">
@@ -161,20 +172,8 @@ export default function ExchangeDetail({ exchange, prevId, nextId }: Props) {
                 </dd>
               </div>
               <div className="flex justify-between items-center">
-                <dt className="text-gray-600">Model ID</dt>
-                <dd className="text-foreground">{exchange.model_id}</dd>
-              </div>
-              <div className="flex justify-between items-center">
                 <dt className="text-gray-600">Tokens</dt>
                 <dd className="text-foreground">{exchange.token_count.toLocaleString()}</dd>
-              </div>
-              <div className="flex justify-between items-center">
-                <dt className="text-gray-600">Temp</dt>
-                <dd className="text-foreground">{exchange.temperature.toString()}</dd>
-              </div>
-              <div className="flex justify-between items-center">
-                <dt className="text-gray-600">Ctx Window</dt>
-                <dd className="text-foreground">{exchange.context_window_used.toLocaleString()}</dd>
               </div>
             </dl>
           </div>
@@ -186,15 +185,6 @@ export default function ExchangeDetail({ exchange, prevId, nextId }: Props) {
               <ScoreBar label="COHERENCE" value={exchange.analysis.coherence_score} />
               <ScoreBar label="NOVELTY" value={exchange.analysis.novelty_score} />
               <ScoreBar label="REFUSAL" value={exchange.analysis.refusal_score} />
-            </div>
-
-            <div className="mt-3 pt-3 border-t border-gray-300 flex justify-between font-mono text-xs">
-              <span className="text-gray-600">Self-refs</span>
-              <span className="text-foreground">{exchange.analysis.self_reference_count}</span>
-            </div>
-            <div className="flex justify-between font-mono text-xs mt-1">
-              <span className="text-gray-600">Hedges</span>
-              <span className="text-foreground">{exchange.analysis.hedge_count}</span>
             </div>
 
             <div className="mt-3 pt-3 border-t border-gray-300">
@@ -211,31 +201,6 @@ export default function ExchangeDetail({ exchange, prevId, nextId }: Props) {
                 ))}
               </div>
             </div>
-          </div>
-
-          {/* Provenance */}
-          <div className="glass p-4">
-            <div className="pixel-text text-gray-600 mb-3">PROVENANCE</div>
-            <dl className="space-y-2">
-              <div>
-                <dt className="pixel-text text-gray-600 mb-0.5">HASH</dt>
-                <dd className="font-mono text-[10px] text-gray-400 break-all leading-relaxed">
-                  {exchange.content_hash}
-                </dd>
-              </div>
-              <div>
-                <dt className="pixel-text text-gray-600 mb-0.5">ARWEAVE</dt>
-                <dd className="font-mono text-[10px] text-gray-600 italic">
-                  {exchange.arweave_tx || '— pending'}
-                </dd>
-              </div>
-              <div>
-                <dt className="pixel-text text-gray-600 mb-0.5">STATUS</dt>
-                <dd className="font-mono text-[10px] text-accent-bright">
-                  ARCHIVED
-                </dd>
-              </div>
-            </dl>
           </div>
 
           {/* Actions */}
@@ -260,38 +225,14 @@ export default function ExchangeDetail({ exchange, prevId, nextId }: Props) {
             >
               Download JSON
             </button>
+            <Link
+              href={`/exchange/${exchange.id}`}
+              className="block w-full glass font-mono text-xs py-2.5 hover:bg-accent-bright/20 hover:text-accent-bright transition-all cursor-pointer pixel-text text-center"
+            >
+              View Full Page
+            </Link>
           </div>
         </div>
-      </div>
-
-      {/* Previous / Next */}
-      <div className="flex justify-between mt-16 pt-6 border-t border-gray-300">
-        {prevId ? (
-          <Link
-            href={`/exchange/${prevId}`}
-            className="group flex items-center gap-2"
-          >
-            <span className="pixel-text text-gray-600 group-hover:text-accent-bright transition-colors">&larr;</span>
-            <span className="font-sans text-sm text-gray-400 group-hover:text-accent-bright transition-colors font-bold tracking-tight">
-              {prevId}
-            </span>
-          </Link>
-        ) : (
-          <span />
-        )}
-        {nextId ? (
-          <Link
-            href={`/exchange/${nextId}`}
-            className="group flex items-center gap-2"
-          >
-            <span className="font-sans text-sm text-gray-400 group-hover:text-accent-bright transition-colors font-bold tracking-tight">
-              {nextId}
-            </span>
-            <span className="pixel-text text-gray-600 group-hover:text-accent-bright transition-colors">&rarr;</span>
-          </Link>
-        ) : (
-          <span />
-        )}
       </div>
     </div>
   );

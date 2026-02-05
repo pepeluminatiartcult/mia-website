@@ -64,14 +64,14 @@ export default async function Home() {
         {/* Latest Exchanges */}
         <section className="py-12">
           <div className="flex items-end justify-between mb-6">
-            <div className="inline-block" style={{ background: '#c0c0c0', border: '2px solid', borderColor: '#808080 #dfdfdf #dfdfdf #808080', boxShadow: 'inset 1px 1px 0 #404040, inset -1px -1px 0 #fff' }}>
-              <h2 className="font-mono text-sm text-foreground px-4 py-2">
+            <div className="inline-block px-4 py-2" style={{ background: '#0000aa' }}>
+              <h2 className="font-mono text-sm text-white">
                 Latest Exchanges
               </h2>
             </div>
             <Link
               href="/archive"
-              className="pixel-text text-gray-400 hover:text-accent-bright transition-colors"
+              className="glass pixel-text px-3 py-1.5 text-foreground hover:text-accent-bright transition-colors"
             >
               VIEW ALL &rarr;
             </Link>
