@@ -17,8 +17,12 @@ export default async function QuestionsPage() {
     responseCounts[e.question_id] = (responseCounts[e.question_id] || 0) + 1;
   });
 
-  // Sort questions by times_asked descending
-  const sortedQuestions = [...questions].sort((a, b) => b.times_asked - a.times_asked);
+  // Sort questions by response count descending
+  const sortedQuestions = [...questions].sort((a, b) => {
+    const countA = responseCounts[a.id] || 0;
+    const countB = responseCounts[b.id] || 0;
+    return countB - countA;
+  });
 
   return (
     <>
@@ -70,10 +74,8 @@ export default async function QuestionsPage() {
                       {question.text}
                     </p>
                   </div>
-                  <div className="flex sm:flex-col items-center sm:items-end gap-3 sm:gap-1 pixel-text text-gray-600 whitespace-nowrap">
+                  <div className="pixel-text text-gray-600 whitespace-nowrap">
                     <span>{responseCount} response{responseCount !== 1 ? 's' : ''}</span>
-                    <span className="text-gray-400 sm:hidden">|</span>
-                    <span>asked {question.times_asked}x</span>
                   </div>
                 </div>
               </Link>

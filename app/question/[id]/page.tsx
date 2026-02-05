@@ -74,12 +74,6 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
             <span>{exchanges.length} response{exchanges.length !== 1 ? 's' : ''}</span>
             <span className="text-gray-400">|</span>
             <span>{uniqueModels.length} model{uniqueModels.length !== 1 ? 's' : ''}</span>
-            {question && (
-              <>
-                <span className="text-gray-400">|</span>
-                <span>asked {question.times_asked}x</span>
-              </>
-            )}
           </div>
         </div>
 
