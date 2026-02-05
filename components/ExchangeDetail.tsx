@@ -63,12 +63,12 @@ export default function ExchangeDetail({ exchange, prevId, nextId }: Props) {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-      {/* Header — big ID, small metadata */}
-      <div className="mb-8 pb-6 border-b border-border">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 relative z-10">
+      {/* Header */}
+      <div className="mb-8 pb-6 border-b border-gray-300">
         <div className="pixel-text text-gray-600 mb-2">// EXCHANGE</div>
         <div className="flex flex-col sm:flex-row sm:items-end gap-2 sm:gap-4">
-          <h1 className="font-mono text-4xl sm:text-5xl font-bold tracking-tighter text-accent-bright glitch-hover">
+          <h1 className="font-sans text-4xl sm:text-5xl font-bold tracking-tighter text-accent-bright glitch-hover">
             {exchange.id}
           </h1>
           <div className="flex items-center gap-3 mb-1">
@@ -86,33 +86,27 @@ export default function ExchangeDetail({ exchange, prevId, nextId }: Props) {
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8">
         {/* Main Content — Chat Layout */}
-        <div className="space-y-6 mb-8">
+        <div className="space-y-8 mb-8">
           {/* MIA's message (question) */}
-          <div className="flex gap-3 max-w-[85%]">
-            <div className="shrink-0 w-8 h-8 border border-accent bg-accent/10 flex items-center justify-center">
-              <span className="font-mono text-[10px] font-bold text-accent">M</span>
+          <div className="glass ml-12 lg:ml-24">
+            <div className="flex items-center justify-end gap-1 px-2 py-1" style={{ background: '#000080' }}>
+              <span className="pixel-text !text-[9px] text-white">MIA</span>
             </div>
-            <div>
-              <div className="pixel-text text-accent mb-1.5">MIA</div>
-              <div className="border border-accent/30 bg-accent/5 p-4">
-                <p className="text-base leading-relaxed text-foreground">
-                  {exchange.question_text}
-                </p>
-              </div>
+            <div className="p-5" style={{ background: '#0000aa' }}>
+              <p className="font-mono text-sm leading-loose text-white">
+                {exchange.question_text}
+              </p>
             </div>
           </div>
 
           {/* Partner AI's message (response) */}
-          <div className="flex gap-3 max-w-[85%] ml-auto flex-row-reverse">
-            <div className="shrink-0 w-8 h-8 border border-border bg-surface flex items-center justify-center">
-              <span className="font-mono text-[10px] font-bold text-gray-400">AI</span>
+          <div className="glass mr-12 lg:mr-24">
+            <div className="flex items-center gap-1 px-2 py-1" style={{ background: '#000080' }}>
+              <span className="pixel-text !text-[9px] text-white">{exchange.model_name}</span>
             </div>
-            <div>
-              <div className="pixel-text text-gray-600 mb-1.5 text-right">{exchange.model_name}</div>
-              <div className="border border-border bg-surface p-4">
-                <div className="text-sm leading-[1.8] text-gray-400 whitespace-pre-wrap">
-                  {exchange.response_text}
-                </div>
+            <div className="p-5" style={{ background: '#0000aa' }}>
+              <div className="font-mono text-sm leading-loose text-white whitespace-pre-wrap">
+                {exchange.response_text}
               </div>
             </div>
           </div>
@@ -121,7 +115,7 @@ export default function ExchangeDetail({ exchange, prevId, nextId }: Props) {
         {/* Sidebar */}
         <div className="space-y-4">
           {/* Metadata */}
-          <div className="border border-border bg-surface p-4">
+          <div className="glass p-4">
             <div className="pixel-text text-gray-600 mb-3">METADATA</div>
             <dl className="space-y-2 font-mono text-xs">
               {[
@@ -139,8 +133,8 @@ export default function ExchangeDetail({ exchange, prevId, nextId }: Props) {
             </dl>
           </div>
 
-          {/* Analysis — with visual bars */}
-          <div className="border border-border bg-surface p-4">
+          {/* Analysis */}
+          <div className="glass p-4">
             <div className="pixel-text text-gray-600 mb-3">ANALYSIS</div>
             <div className="space-y-3">
               <ScoreBar label="COHERENCE" value={exchange.analysis.coherence_score} />
@@ -148,7 +142,7 @@ export default function ExchangeDetail({ exchange, prevId, nextId }: Props) {
               <ScoreBar label="REFUSAL" value={exchange.analysis.refusal_score} />
             </div>
 
-            <div className="mt-3 pt-3 border-t border-border flex justify-between font-mono text-xs">
+            <div className="mt-3 pt-3 border-t border-gray-300 flex justify-between font-mono text-xs">
               <span className="text-gray-600">Self-refs</span>
               <span className="text-foreground">{exchange.analysis.self_reference_count}</span>
             </div>
@@ -157,13 +151,13 @@ export default function ExchangeDetail({ exchange, prevId, nextId }: Props) {
               <span className="text-foreground">{exchange.analysis.hedge_count}</span>
             </div>
 
-            <div className="mt-3 pt-3 border-t border-border">
+            <div className="mt-3 pt-3 border-t border-gray-300">
               <div className="pixel-text text-gray-600 mb-2">THEMES</div>
               <div className="flex flex-wrap gap-1">
                 {exchange.analysis.key_themes.map((theme) => (
                   <span
                     key={theme}
-                    className="pixel-text !text-[9px] border border-border text-gray-400 px-1.5 py-0.5 hover:border-accent-bright hover:text-accent-bright transition-colors"
+                    className="pixel-text !text-[9px] border border-gray-300 text-gray-400 px-1.5 py-0.5 hover:border-accent-bright hover:text-accent-bright transition-colors"
                   >
                     {theme}
                   </span>
@@ -173,7 +167,7 @@ export default function ExchangeDetail({ exchange, prevId, nextId }: Props) {
           </div>
 
           {/* Provenance */}
-          <div className="border border-border bg-surface p-4">
+          <div className="glass p-4">
             <div className="pixel-text text-gray-600 mb-3">PROVENANCE</div>
             <dl className="space-y-2">
               <div>
@@ -202,36 +196,36 @@ export default function ExchangeDetail({ exchange, prevId, nextId }: Props) {
             <div className="grid grid-cols-2 gap-1">
               <button
                 onClick={() => handleShare('twitter')}
-                className="border border-border bg-surface font-mono text-xs py-2.5 hover:bg-accent-bright hover:text-background hover:border-accent-bright transition-all cursor-pointer pixel-text"
+                className="glass font-mono text-xs py-2.5 hover:bg-accent-bright/20 hover:text-accent-bright transition-all cursor-pointer pixel-text"
               >
                 Share X
               </button>
               <button
                 onClick={() => handleShare('copy')}
-                className="border border-border bg-surface font-mono text-xs py-2.5 hover:bg-accent-bright hover:text-background hover:border-accent-bright transition-all cursor-pointer pixel-text"
+                className="glass font-mono text-xs py-2.5 hover:bg-accent-bright/20 hover:text-accent-bright transition-all cursor-pointer pixel-text"
               >
                 Copy Link
               </button>
             </div>
             <button
               onClick={handleDownload}
-              className="w-full border border-border bg-surface font-mono text-xs py-2.5 hover:border-gray-400 transition-all cursor-pointer pixel-text text-gray-600"
+              className="w-full glass font-mono text-xs py-2.5 hover:bg-gray-100 transition-all cursor-pointer pixel-text text-gray-600"
             >
-              ↓ Download JSON
+              Download JSON
             </button>
           </div>
         </div>
       </div>
 
       {/* Previous / Next */}
-      <div className="flex justify-between mt-16 pt-6 border-t border-border">
+      <div className="flex justify-between mt-16 pt-6 border-t border-gray-300">
         {prevId ? (
           <Link
             href={`/exchange/${prevId}`}
             className="group flex items-center gap-2"
           >
-            <span className="pixel-text text-gray-600 group-hover:text-accent-bright transition-colors">←</span>
-            <span className="font-mono text-sm text-gray-400 group-hover:text-accent-bright transition-colors font-bold tracking-tight">
+            <span className="pixel-text text-gray-600 group-hover:text-accent-bright transition-colors">&larr;</span>
+            <span className="font-sans text-sm text-gray-400 group-hover:text-accent-bright transition-colors font-bold tracking-tight">
               {prevId}
             </span>
           </Link>
@@ -243,10 +237,10 @@ export default function ExchangeDetail({ exchange, prevId, nextId }: Props) {
             href={`/exchange/${nextId}`}
             className="group flex items-center gap-2"
           >
-            <span className="font-mono text-sm text-gray-400 group-hover:text-accent-bright transition-colors font-bold tracking-tight">
+            <span className="font-sans text-sm text-gray-400 group-hover:text-accent-bright transition-colors font-bold tracking-tight">
               {nextId}
             </span>
-            <span className="pixel-text text-gray-600 group-hover:text-accent-bright transition-colors">→</span>
+            <span className="pixel-text text-gray-600 group-hover:text-accent-bright transition-colors">&rarr;</span>
           </Link>
         ) : (
           <span />

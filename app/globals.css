@@ -1,18 +1,18 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: #ffffff;
-  --color-foreground: #1a1a1a;
-  --color-gray-600: #999999;
-  --color-gray-400: #888888;
-  --color-gray-300: #cccccc;
-  --color-gray-100: #f5f5f5;
-  --color-accent: #2d6a30;
-  --color-accent-bright: #2d6a30;
-  --color-surface: #f2f2f2;
-  --color-border: #e0e0e0;
+  --color-background: #c0c0c0;
+  --color-foreground: #000000;
+  --color-gray-600: #808080;
+  --color-gray-400: #444444;
+  --color-gray-300: #a0a0a0;
+  --color-gray-100: #d4d0c8;
+  --color-accent: #000080;
+  --color-accent-bright: #0000ff;
+  --color-surface: #c0c0c0;
+  --color-border: #808080;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Helvetica Neue", Helvetica, Arial, "Liberation Sans", sans-serif;
 }
 
 /* Scanline overlay */
@@ -31,10 +31,13 @@
 }
 
 @keyframes text-glitch {
-  0%, 100% { transform: translate(0, 0); }
-  20% { transform: translate(-1px, 0); }
-  40% { transform: translate(1px, 0); }
-  60% { transform: translate(0, 0); }
+  0%, 100% { transform: translate(0, 0); text-shadow: none; }
+  10% { transform: translate(-2px, 0); text-shadow: 2px 0 #0000ff, -2px 0 #000080; }
+  20% { transform: translate(2px, -1px); text-shadow: -1px 0 #0000ff; }
+  30% { transform: translate(0, 0); text-shadow: none; }
+  50% { transform: translate(1px, 0); text-shadow: -2px 0 rgba(0,0,255,0.5); }
+  60% { transform: translate(-1px, 1px); text-shadow: 1px 0 rgba(0,0,128,0.5); }
+  70% { transform: translate(0, 0); text-shadow: none; }
 }
 
 @keyframes fade-in-up {
@@ -46,6 +49,13 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@keyframes glitch-band-jitter {
+  0%, 100% { transform: translateX(var(--band-offset)); }
+  25% { transform: translateX(calc(var(--band-offset) + 5px)); }
+  50% { transform: translateX(calc(var(--band-offset) - 3px)); }
+  75% { transform: translateX(calc(var(--band-offset) + 7px)); }
 }
 
 body {
@@ -65,14 +75,14 @@ body::before {
   inset: 0;
   pointer-events: none;
   z-index: 9998;
-  opacity: 0.02;
+  opacity: 0.04;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
   background-size: 256px 256px;
 }
 
 ::selection {
-  background: var(--color-accent);
-  color: #fff;
+  background: #000080;
+  color: #ffffff;
 }
 
 a {
@@ -81,7 +91,7 @@ a {
 }
 
 a:hover {
-  color: var(--color-accent);
+  color: var(--color-accent-bright);
 }
 
 /* Pixel-style rendering for certain text */
@@ -97,7 +107,7 @@ a:hover {
 
 /* Glitch hover effect */
 .glitch-hover:hover {
-  animation: text-glitch 0.15s ease-in-out;
+  animation: text-glitch 0.3s ease-in-out;
 }
 
 /* Animate-in utility */
@@ -105,12 +115,15 @@ a:hover {
   animation: fade-in-up 0.4s ease-out both;
 }
 
-/* Score bar visualization */
+/* Score bar visualization — sunken inset */
 .score-bar {
-  height: 3px;
-  background: var(--color-border);
+  height: 6px;
+  background: #ffffff;
   position: relative;
   overflow: hidden;
+  border: 1px solid;
+  border-color: #808080 #dfdfdf #dfdfdf #808080;
+  box-shadow: inset 1px 1px 0 #404040;
 }
 
 .score-bar-fill {
@@ -118,7 +131,7 @@ a:hover {
   left: 0;
   top: 0;
   height: 100%;
-  background: var(--color-accent);
+  background: #000080;
   transition: width 0.6s ease-out;
 }
 
@@ -141,19 +154,53 @@ a:hover {
   letter-spacing: 0.1em;
 }
 
-/* Custom scrollbar */
+/* ─── Windows 95/98 Panel Utilities ──────────────────── */
+
+.glass,
+.glass-strong {
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #dfdfdf #404040 #404040 #dfdfdf;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #808080;
+}
+
+.glass-mia {
+  background: #ffffff;
+  border: 2px solid;
+  border-color: #808080 #dfdfdf #dfdfdf #808080;
+  box-shadow: inset 1px 1px 0 #404040, inset -1px -1px 0 #fff;
+}
+
+.glass-ai {
+  background: #ffffff;
+  border: 2px solid;
+  border-color: #808080 #dfdfdf #dfdfdf #808080;
+  box-shadow: inset 1px 1px 0 #404040, inset -1px -1px 0 #fff;
+}
+
+/* Glitch band animation for collage */
+.collage-glitch-band {
+  animation: glitch-band-jitter 8s ease-in-out infinite;
+  animation-delay: calc(var(--band-delay, 0) * 1s);
+}
+
+/* Custom scrollbar — Windows 95 style */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 16px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-background);
+  background: #c0c0c0;
+  border-left: 1px solid #808080;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border);
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #dfdfdf #404040 #404040 #dfdfdf;
+  box-shadow: inset 1px 1px 0 #fff;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-gray-400);
+  background: #d4d0c8;
 }

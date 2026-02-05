@@ -15,10 +15,10 @@ export default function Navigation() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="border-b border-border sticky top-0 z-50 bg-background/90 backdrop-blur-sm">
+    <header className="glass border-b border-gray-300 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
         <Link href="/" className="group flex items-center gap-2 hover:text-foreground">
-          <span className="font-mono text-xl font-bold tracking-tighter text-accent-bright glitch-hover">
+          <span className="font-sans text-xl font-bold tracking-tighter text-accent-bright glitch-hover">
             MIA
           </span>
           <span className="pixel-text text-gray-400 hidden sm:inline mt-0.5">
@@ -36,7 +36,7 @@ export default function Navigation() {
                 className={`pixel-text px-3 py-1.5 transition-all glitch-hover ${
                   isActive
                     ? 'text-accent-bright bg-accent-bright/10'
-                    : 'text-gray-400 hover:text-foreground hover:bg-surface'
+                    : 'text-gray-400 hover:text-foreground hover:bg-gray-100'
                 }`}
               >
                 {link.label}
@@ -55,7 +55,7 @@ export default function Navigation() {
       </div>
 
       {mobileOpen && (
-        <nav className="md:hidden border-t border-border bg-surface px-4 py-2">
+        <nav className="md:hidden border-t border-gray-300 glass-strong px-4 py-2">
           {navLinks.map((link) => {
             const isActive = pathname === link.href || pathname?.startsWith(link.href + '/');
             return (
