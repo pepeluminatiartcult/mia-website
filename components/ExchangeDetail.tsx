@@ -89,7 +89,8 @@ export default function ExchangeDetail({ exchange, prevId, nextId }: Props) {
         <div className="space-y-8 mb-8">
           {/* MIA's message (question) */}
           <div className="glass ml-12 lg:ml-24">
-            <div className="flex items-center justify-end gap-1 px-2 py-1" style={{ background: '#000080' }}>
+            <div className="flex items-center justify-between px-2 py-1" style={{ background: '#000080' }}>
+              <span className="pixel-text !text-[9px] text-white/50">{date} {time}</span>
               <span className="pixel-text !text-[9px] text-white">MIA</span>
             </div>
             <div className="p-5" style={{ background: '#0000aa' }}>
@@ -101,8 +102,9 @@ export default function ExchangeDetail({ exchange, prevId, nextId }: Props) {
 
           {/* Partner AI's message (response) */}
           <div className="glass mr-12 lg:mr-24">
-            <div className="flex items-center gap-1 px-2 py-1" style={{ background: '#000080' }}>
+            <div className="flex items-center justify-between px-2 py-1" style={{ background: '#000080' }}>
               <span className="pixel-text !text-[9px] text-white">{exchange.model_name}</span>
+              <span className="pixel-text !text-[9px] text-white/50">{date} {time}</span>
             </div>
             <div className="p-5" style={{ background: '#0000aa' }}>
               <div className="font-mono text-sm leading-loose text-white whitespace-pre-wrap">
