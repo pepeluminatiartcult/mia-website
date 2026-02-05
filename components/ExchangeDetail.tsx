@@ -124,11 +124,15 @@ export default function ExchangeDetail({ exchange, prevId, nextId }: Props) {
             <div className="pixel-text text-gray-600 mb-3">METADATA</div>
             <dl className="space-y-2 font-mono text-xs">
               {[
+                ['Date', date],
+                ['Time', time],
+                ['Question', exchange.question_id],
+                ['Domain', `${exchange.domain_code} — ${exchange.domain_name}`],
                 ['Model', exchange.model_name],
-                ['Domain', exchange.domain_code],
+                ['Model ID', exchange.model_id],
                 ['Tokens', exchange.token_count.toLocaleString()],
                 ['Temp', exchange.temperature.toString()],
-                ['Ctx', exchange.context_window_used.toLocaleString()],
+                ['Ctx Window', exchange.context_window_used.toLocaleString()],
               ].map(([label, value]) => (
                 <div key={label} className="flex justify-between items-center">
                   <dt className="text-gray-600">{label}</dt>
