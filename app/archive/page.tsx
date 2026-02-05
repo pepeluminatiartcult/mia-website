@@ -5,7 +5,7 @@ import CollageBackground from '@/components/CollageBackground';
 export const revalidate = 60;
 
 interface Props {
-  searchParams: Promise<{ model?: string; theme?: string }>;
+  searchParams: Promise<{ model?: string; theme?: string; question?: string }>;
 }
 
 export default async function ArchivePage({ searchParams }: Props) {
@@ -23,6 +23,7 @@ export default async function ArchivePage({ searchParams }: Props) {
           exchanges={exchanges}
           initialModel={params.model}
           initialTheme={params.theme}
+          initialQuestion={params.question}
         />
       </div>
     </>

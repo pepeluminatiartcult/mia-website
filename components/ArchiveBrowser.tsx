@@ -14,14 +14,16 @@ interface Props {
   exchanges: Exchange[];
   initialModel?: string;
   initialTheme?: string;
+  initialQuestion?: string;
 }
 
-export default function ArchiveBrowser({ exchanges, initialModel, initialTheme }: Props) {
+export default function ArchiveBrowser({ exchanges, initialModel, initialTheme, initialQuestion }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const [domainFilter, setDomainFilter] = useState('all');
   const [modelFilter, setModelFilter] = useState(initialModel || 'all');
+  const [questionFilter, setQuestionFilter] = useState(initialQuestion || 'all');
   const [themeFilter, setThemeFilter] = useState(initialTheme || 'all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('date_desc');
@@ -31,15 +33,18 @@ export default function ArchiveBrowser({ exchanges, initialModel, initialTheme }
   useEffect(() => {
     const model = searchParams.get('model');
     const theme = searchParams.get('theme');
+    const question = searchParams.get('question');
     if (model) setModelFilter(model);
     if (theme) setThemeFilter(theme);
+    if (question) setQuestionFilter(question);
   }, [searchParams]);
 
   // Update URL when filters change
-  const updateUrl = (newModel: string, newTheme: string) => {
+  const updateUrl = (newModel: string, newTheme: string, newQuestion: string) => {
     const params = new URLSearchParams();
     if (newModel !== 'all') params.set('model', newModel);
     if (newTheme !== 'all') params.set('theme', newTheme);
+    if (newQuestion !== 'all') params.set('question', newQuestion);
     const query = params.toString();
     router.replace(query ? `/archive?${query}` : '/archive', { scroll: false });
   };
@@ -54,6 +59,11 @@ export default function ArchiveBrowser({ exchanges, initialModel, initialTheme }
     [exchanges]
   );
 
+  const uniqueQuestions = useMemo(
+    () => [...new Set(exchanges.map(e => e.question_id))].sort(),
+    [exchanges]
+  );
+
   const uniqueThemes = useMemo(
     () => [...new Set(exchanges.flatMap(e => e.analysis.key_themes))].sort(),
     [exchanges]
@@ -63,6 +73,7 @@ export default function ArchiveBrowser({ exchanges, initialModel, initialTheme }
     let result = exchanges.filter(e => {
       if (domainFilter !== 'all' && e.domain_code !== domainFilter) return false;
       if (modelFilter !== 'all' && e.model_name !== modelFilter) return false;
+      if (questionFilter !== 'all' && e.question_id !== questionFilter) return false;
       if (themeFilter !== 'all' && !e.analysis.key_themes.includes(themeFilter)) return false;
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
@@ -95,7 +106,7 @@ export default function ArchiveBrowser({ exchanges, initialModel, initialTheme }
     });
 
     return result;
-  }, [exchanges, domainFilter, modelFilter, themeFilter, searchQuery, sortBy]);
+  }, [exchanges, domainFilter, modelFilter, questionFilter, themeFilter, searchQuery, sortBy]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
@@ -103,18 +114,25 @@ export default function ArchiveBrowser({ exchanges, initialModel, initialTheme }
   const handleModelChange = (value: string) => {
     setModelFilter(value);
     setPage(1);
-    updateUrl(value, themeFilter);
+    updateUrl(value, themeFilter, questionFilter);
+  };
+
+  const handleQuestionChange = (value: string) => {
+    setQuestionFilter(value);
+    setPage(1);
+    updateUrl(modelFilter, themeFilter, value);
   };
 
   const handleThemeChange = (value: string) => {
     setThemeFilter(value);
     setPage(1);
-    updateUrl(modelFilter, value);
+    updateUrl(modelFilter, value, questionFilter);
   };
 
   const clearFilters = () => {
     setDomainFilter('all');
     setModelFilter('all');
+    setQuestionFilter('all');
     setThemeFilter('all');
     setSearchQuery('');
     setSortBy('date_desc');
@@ -122,7 +140,7 @@ export default function ArchiveBrowser({ exchanges, initialModel, initialTheme }
     router.replace('/archive', { scroll: false });
   };
 
-  const hasActiveFilters = domainFilter !== 'all' || modelFilter !== 'all' || themeFilter !== 'all' || searchQuery !== '';
+  const hasActiveFilters = domainFilter !== 'all' || modelFilter !== 'all' || questionFilter !== 'all' || themeFilter !== 'all' || searchQuery !== '';
 
   return (
     <>
@@ -168,6 +186,20 @@ export default function ArchiveBrowser({ exchanges, initialModel, initialTheme }
             <option value="all">All models</option>
             {uniqueModels.map(m => (
               <option key={m} value={m}>{m}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="pixel-text text-gray-600 block mb-1.5">Question</label>
+          <select
+            value={questionFilter}
+            onChange={e => handleQuestionChange(e.target.value)}
+            className="font-mono text-xs glass text-foreground px-3 py-1.5 focus:border-accent-bright focus:outline-none"
+          >
+            <option value="all">All questions</option>
+            {uniqueQuestions.map(q => (
+              <option key={q} value={q}>{q}</option>
             ))}
           </select>
         </div>
