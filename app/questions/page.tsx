@@ -11,16 +11,16 @@ export default async function QuestionsPage() {
     getExchanges(),
   ]);
 
-  // Count responses per question
-  const responseCounts: Record<string, number> = {};
+  // Count exchanges per question
+  const exchangeCounts: Record<string, number> = {};
   exchanges.forEach(e => {
-    responseCounts[e.question_id] = (responseCounts[e.question_id] || 0) + 1;
+    exchangeCounts[e.question_id] = (exchangeCounts[e.question_id] || 0) + 1;
   });
 
-  // Sort questions by response count descending
+  // Sort questions by exchange count descending
   const sortedQuestions = [...questions].sort((a, b) => {
-    const countA = responseCounts[a.id] || 0;
-    const countB = responseCounts[b.id] || 0;
+    const countA = exchangeCounts[a.id] || 0;
+    const countB = exchangeCounts[b.id] || 0;
     return countB - countA;
   });
 
@@ -44,7 +44,7 @@ export default async function QuestionsPage() {
 
         <div className="space-y-2">
           {sortedQuestions.map((question, i) => {
-            const responseCount = responseCounts[question.id] || 0;
+            const exchangeCount = exchangeCounts[question.id] || 0;
             return (
               <Link
                 key={question.id}
@@ -75,7 +75,7 @@ export default async function QuestionsPage() {
                     </p>
                   </div>
                   <div className="pixel-text text-gray-600 whitespace-nowrap">
-                    <span>{responseCount} response{responseCount !== 1 ? 's' : ''}</span>
+                    {exchangeCount} Exchange{exchangeCount !== 1 ? 's' : ''}
                   </div>
                 </div>
               </Link>
