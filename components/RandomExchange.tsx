@@ -32,13 +32,11 @@ export default function RandomExchange({ initialExchange, allExchanges }: Props)
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
-    timeZone: 'UTC',
   });
   const time = dt.toLocaleTimeString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
-    hour12: false,
-    timeZone: 'UTC',
+    hour12: true,
     timeZoneName: 'short',
   });
 
