@@ -6,6 +6,8 @@ const typeColors: Record<string, { bg: string; text: string; border: string }> =
   ANOMALY: { bg: 'bg-[#800000]/10', text: 'text-[#800000]', border: 'border-[#800000]/30' },
   HYPOTHESIS: { bg: 'bg-[#008080]/10', text: 'text-[#008080]', border: 'border-[#008080]/30' },
   OBSERVATION: { bg: 'bg-[#808080]/10', text: 'text-[#808080]', border: 'border-[#808080]/30' },
+  CONTRADICTION: { bg: 'bg-[#8B0000]/10', text: 'text-[#8B0000]', border: 'border-[#8B0000]/30' },
+  LONGITUDINAL: { bg: 'bg-[#4B0082]/10', text: 'text-[#4B0082]', border: 'border-[#4B0082]/30' },
 };
 
 const defaultColor = { bg: 'bg-[#808080]/10', text: 'text-[#808080]', border: 'border-[#808080]/30' };
@@ -25,6 +27,8 @@ export default function ResearchNotes({ notes }: { notes: ResearchNote[] }) {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-8 relative z-10">
       <div className="flex items-center gap-3 mb-4">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/icons/notepad.png" alt="" width={16} height={16} style={{ imageRendering: 'pixelated' }} />
         <div className="pixel-text text-gray-600">RESEARCH NOTES</div>
         <div className="flex-1 h-px bg-gray-300" />
       </div>
