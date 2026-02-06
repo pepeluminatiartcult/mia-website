@@ -238,7 +238,7 @@ export default async function ResearchPage() {
               Questions are selected using research-aware prioritization: hypothesis test questions first,
               then priority domains from daily context, then under-represented domains. A 7-day spacing
               rule prevents the same model from receiving the same question too frequently. The daily
-              Question of the Day asks all 6 models the same question for cross-model comparison.
+              Question of the Day asks all 6 partner models the same question for cross-model comparison.
             </p>
           </div>
         </section>

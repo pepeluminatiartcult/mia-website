@@ -46,9 +46,17 @@ export default async function ReportDetailPage({ params }: PageProps) {
 
   const colors = typeColors[report.report_type.toLowerCase()] ?? defaultTypeColor;
 
+  // Strip social thread section from content (it's in the Sonnet output)
+  const stripSocialThread = (content: string): string => {
+    // Remove "## N. Social Thread" or "## Social Thread" and everything after
+    const pattern = /\n##\s+(?:\d+\.\s+)?Social Thread[\s\S]*/i;
+    return content.replace(pattern, '').trimEnd();
+  };
+
   // Simple markdown-to-JSX: split by paragraphs, handle headers and bold
   const renderContent = (content: string) => {
-    return content.split('\n\n').map((block, i) => {
+    const cleaned = stripSocialThread(content);
+    return cleaned.split('\n\n').map((block, i) => {
       const trimmed = block.trim();
       if (!trimmed) return null;
 
@@ -125,7 +133,7 @@ export default async function ReportDetailPage({ params }: PageProps) {
           )}
         </div>
 
-        <h1 className="font-sans text-3xl sm:text-4xl font-bold tracking-tight text-white mb-2">
+        <h1 className="font-sans text-3xl sm:text-4xl font-bold tracking-tight text-white mb-2 break-words">
           {report.title}
         </h1>
 
@@ -136,20 +144,6 @@ export default async function ReportDetailPage({ params }: PageProps) {
           {renderContent(report.content)}
         </article>
 
-        {/* Social Thread */}
-        {report.social_thread && (
-          <section className="mb-12">
-            <div className="mb-4 flex items-center gap-3">
-              <div className="pixel-text text-gray-600">SOCIAL THREAD DRAFT</div>
-              <div className="flex-1 h-px bg-gray-300" />
-            </div>
-            <div className="glass p-4">
-              <p className="font-mono text-sm text-foreground leading-relaxed whitespace-pre-line">
-                {report.social_thread}
-              </p>
-            </div>
-          </section>
-        )}
       </div>
     </>
   );

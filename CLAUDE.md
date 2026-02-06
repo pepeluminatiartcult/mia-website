@@ -95,6 +95,25 @@ Openclaw uses 2-4 letter codes. These are canonical:
 Openclaw writes to: `~/mia/archive/exchanges/YYYY/MM/MIA-YYYYMMDD-XXXXXXXX.json`
 You won't access these directly (sync API is the boundary), but useful for debugging.
 
+## Database
+
+- **Never try to create or modify Supabase tables programmatically** (no REST API, Management API, or psql). Generate the full SQL migration and tell the user to run it in the Supabase SQL Editor.
+- Always provide complete SQL upfront: `CREATE TABLE`, `ALTER TABLE ... ENABLE ROW LEVEL SECURITY`, `CREATE POLICY`, and any indexes.
+- Wait for user confirmation that the table exists before writing code that depends on it.
+
+## Feature Implementation Order
+
+When building a new full-stack feature, follow this sequence:
+1. **Database SQL** — Generate migration, user runs in Supabase SQL Editor
+2. **TypeScript types** — Add interfaces to `lib/types.ts`
+3. **Query functions** — Add to `lib/queries.ts`
+4. **API/sync support** — Extend `app/api/sync/route.ts` (6 touch points)
+5. **UI components** — Create components, pages, navigation
+6. **Schema docs** — Update `lib/schema.sql`
+7. **Deploy** — Vercel production deploy
+8. **Seed data** — Via sync API curl
+9. **Documentation** — Run `mia-sync-docs` skill
+
 ## Rules
 - Never expose `SUPABASE_SERVICE_ROLE_KEY` or `SYNC_SECRET` client-side
 - Always flatten analysis fields for DB writes

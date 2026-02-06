@@ -9,6 +9,17 @@
           }
         ]
       }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "tool == 'Edit' && tool_input.file_path matches '\\.(ts|tsx)$'",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd ~/mia-website && npx tsc --noEmit --pretty 2>&1 | head -20"
+          }
+        ]
+      }
     ]
   }
 }
