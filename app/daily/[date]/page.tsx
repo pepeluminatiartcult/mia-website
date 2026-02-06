@@ -17,6 +17,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${date} Daily Question — MIA`,
     description: dq.question_text.slice(0, 160),
+    openGraph: {
+      title: `MIA Daily Question — ${date}`,
+      description: dq.question_text.slice(0, 200),
+      siteName: 'MIA',
+    },
   };
 }
 

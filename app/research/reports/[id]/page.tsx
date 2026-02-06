@@ -18,6 +18,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${report.title} — MIA Research`,
     description: report.summary.slice(0, 160),
+    openGraph: {
+      title: report.title,
+      description: report.summary.slice(0, 200),
+      siteName: 'MIA',
+    },
   };
 }
 

@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { getHypotheses, getResearchNoteCounts, getDailyQuestion, getResearchReports, getExchanges } from '@/lib/queries';
+import { getHypotheses, getResearchNoteCounts, getDailyQuestion, getResearchReports, getExchanges, getRecentResearchNotes, getModelStats, getDomainStats } from '@/lib/queries';
 import HypothesisCard from '@/components/HypothesisCard';
 import ReportCard from '@/components/ReportCard';
 import CollageBackground from '@/components/CollageBackground';
@@ -13,12 +13,15 @@ export const metadata: Metadata = {
 };
 
 export default async function ResearchPage() {
-  const [hypotheses, noteCounts, dailyQ, reports, allExchanges] = await Promise.all([
+  const [hypotheses, noteCounts, dailyQ, reports, allExchanges, recentNotes, modelStats, domainStats] = await Promise.all([
     getHypotheses(),
     getResearchNoteCounts(),
     getDailyQuestion(),
     getResearchReports(),
     getExchanges(),
+    getRecentResearchNotes(5),
+    getModelStats(),
+    getDomainStats(),
   ]);
 
   const activeHypotheses = hypotheses.filter(h => h.status.toLowerCase() === 'active');
@@ -30,13 +33,29 @@ export default async function ResearchPage() {
       <CollageBackground seed="research" density="medium" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 relative z-10">
         <h1 className="font-sans text-5xl sm:text-7xl font-bold uppercase tracking-tighter text-white mb-3">Research</h1>
-        <div className="max-w-md mb-10 px-8 py-5" style={{ background: '#0000aa' }}>
-          <p className="font-mono text-xs leading-loose text-white">
+        <div className="mb-10 px-8 py-5" style={{ background: '#0000aa' }}>
+          <p className="font-mono text-xs leading-loose text-white mb-3">
             MIA&apos;s autonomous research program has analyzed{' '}
-            <strong>{allExchanges.length}</strong> exchanges,
+            <strong>{allExchanges.length}</strong> exchanges across{' '}
+            <strong>{domainStats.length}</strong> domains,
+            studying <strong>{modelStats.length}</strong> AI models,
             generated <strong>{hypotheses.length}</strong> hypotheses,
             and published <strong>{reports.length}</strong> reports.
           </p>
+          {domainStats.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {domainStats.slice(0, 12).map((d) => (
+                <span key={d.domain_code} className="pixel-text text-white/80" style={{ fontSize: '9px' }}>
+                  {d.domain_code}:{d.exchange_count}
+                </span>
+              ))}
+              {domainStats.length > 12 && (
+                <span className="pixel-text text-white/50" style={{ fontSize: '9px' }}>
+                  +{domainStats.length - 12} more
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Today's Highlight */}
@@ -108,6 +127,88 @@ export default async function ResearchPage() {
                 View all reports &rarr;
               </Link>
             )}
+          </section>
+        )}
+
+        {/* Models Under Study */}
+        {modelStats.length > 0 && (
+          <section className="mb-12">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="pixel-text text-gray-600">MODELS UNDER STUDY</div>
+              <div className="flex-1 h-px bg-gray-300" />
+              <div className="pixel-text text-gray-600">{modelStats.length}</div>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {modelStats.map((model) => (
+                <Link
+                  key={model.model_id}
+                  href={`/archive?model=${encodeURIComponent(model.model_id)}`}
+                  className="glass p-3 hover:bg-gray-100 transition-all group"
+                >
+                  <div className="font-mono text-xs font-bold text-foreground group-hover:text-accent-bright transition-colors truncate">
+                    {model.model_name}
+                  </div>
+                  <div className="pixel-text text-gray-600 mt-1" style={{ fontSize: '9px' }}>
+                    {model.exchange_count} exchanges &middot; {model.domains.length} domains
+                  </div>
+                  <div className="flex gap-2 mt-1.5">
+                    <div className="pixel-text text-gray-600" style={{ fontSize: '9px' }}>
+                      COH {(model.avg_coherence * 100).toFixed(0)}%
+                    </div>
+                    <div className="pixel-text text-gray-600" style={{ fontSize: '9px' }}>
+                      NOV {(model.avg_novelty * 100).toFixed(0)}%
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Recent Observations */}
+        {recentNotes.length > 0 && (
+          <section className="mb-12">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="pixel-text text-gray-600">RECENT OBSERVATIONS</div>
+              <div className="flex-1 h-px bg-gray-300" />
+              <div className="pixel-text text-gray-600">{recentNotes.length}</div>
+            </div>
+            <div className="space-y-2">
+              {recentNotes.map((note) => (
+                <Link
+                  key={note.id}
+                  href={`/exchange/${note.exchange_id}`}
+                  className="glass p-4 block hover:bg-gray-100 transition-all group"
+                >
+                  <div className="flex items-start justify-between gap-3 mb-1">
+                    <span
+                      className="pixel-text px-1.5 py-0.5 shrink-0"
+                      style={{
+                        fontSize: '9px',
+                        background: note.note_type === 'ANOMALY' ? '#8b0000'
+                          : note.note_type === 'HYPOTHESIS' ? '#556b2f'
+                          : note.note_type === 'PATTERN' ? '#000080'
+                          : '#333',
+                        color: '#fff',
+                      }}
+                    >
+                      {note.note_type}
+                    </span>
+                    <span className="pixel-text text-gray-600 shrink-0" style={{ fontSize: '9px' }}>
+                      {note.exchange_model || note.exchange_id.slice(-8)}
+                    </span>
+                  </div>
+                  <p className="font-mono text-xs text-foreground leading-relaxed line-clamp-2 group-hover:text-accent-bright transition-colors">
+                    {note.note_text}
+                  </p>
+                  {note.hypothesis_ref && (
+                    <span className="pixel-text text-gray-600 mt-1 inline-block" style={{ fontSize: '9px' }}>
+                      {note.hypothesis_ref}
+                    </span>
+                  )}
+                </Link>
+              ))}
+            </div>
           </section>
         )}
 

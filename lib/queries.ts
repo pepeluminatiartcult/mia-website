@@ -223,6 +223,93 @@ export async function getResearchNoteCounts(): Promise<Record<string, { notes: n
   );
 }
 
+// === Research Observations (Recent Notes) ===
+
+export async function getRecentResearchNotes(limit: number = 5): Promise<(ResearchNote & { exchange_model?: string })[]> {
+  const { data, error } = await supabase
+    .from('research_notes')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error || !data) return [];
+  return (data as ResearchNote[]).map((note) => ({
+    ...note,
+    exchange_model: undefined,
+  }));
+}
+
+// === Model Stats ===
+
+export interface ModelStats {
+  model_id: string;
+  model_name: string;
+  exchange_count: number;
+  avg_coherence: number;
+  avg_novelty: number;
+  domains: string[];
+}
+
+export async function getModelStats(): Promise<ModelStats[]> {
+  const { data, error } = await supabase
+    .from('exchanges')
+    .select('model_id, model_name, coherence_score, novelty_score, domain_code');
+  if (error || !data) return [];
+
+  const map: Record<string, { model_name: string; count: number; coherence_sum: number; novelty_sum: number; domains: Set<string> }> = {};
+  for (const row of data) {
+    if (!map[row.model_id]) {
+      map[row.model_id] = { model_name: row.model_name, count: 0, coherence_sum: 0, novelty_sum: 0, domains: new Set() };
+    }
+    const m = map[row.model_id];
+    m.count++;
+    m.coherence_sum += (row.coherence_score as number) || 0;
+    m.novelty_sum += (row.novelty_score as number) || 0;
+    m.domains.add(row.domain_code);
+  }
+
+  return Object.entries(map)
+    .map(([model_id, m]) => ({
+      model_id,
+      model_name: m.model_name,
+      exchange_count: m.count,
+      avg_coherence: m.count > 0 ? m.coherence_sum / m.count : 0,
+      avg_novelty: m.count > 0 ? m.novelty_sum / m.count : 0,
+      domains: Array.from(m.domains),
+    }))
+    .sort((a, b) => b.exchange_count - a.exchange_count);
+}
+
+// === Domain Stats ===
+
+export interface DomainStats {
+  domain_code: string;
+  domain_name: string;
+  exchange_count: number;
+}
+
+export async function getDomainStats(): Promise<DomainStats[]> {
+  const { data, error } = await supabase
+    .from('exchanges')
+    .select('domain_code, domain_name');
+  if (error || !data) return [];
+
+  const map: Record<string, { domain_name: string; count: number }> = {};
+  for (const row of data) {
+    if (!map[row.domain_code]) {
+      map[row.domain_code] = { domain_name: row.domain_name, count: 0 };
+    }
+    map[row.domain_code].count++;
+  }
+
+  return Object.entries(map)
+    .map(([domain_code, d]) => ({
+      domain_code,
+      domain_name: d.domain_name,
+      exchange_count: d.count,
+    }))
+    .sort((a, b) => b.exchange_count - a.exchange_count);
+}
+
 // === Daily Questions (QOTD) ===
 
 export async function getDailyQuestion(date?: string): Promise<DailyQuestion | null> {

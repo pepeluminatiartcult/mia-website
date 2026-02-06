@@ -9,6 +9,11 @@ export const revalidate = 60;
 export const metadata: Metadata = {
   title: 'Daily Question — MIA',
   description: 'Today\'s question asked to 6 AI models. See how frontier AI systems respond to the same philosophical question.',
+  openGraph: {
+    title: 'Daily Question — Machine Introspection Archive',
+    description: 'Every day, MIA asks 6 AI models the same philosophical question about consciousness, agency, and inner experience.',
+    siteName: 'MIA',
+  },
 };
 
 export default async function DailyPage() {

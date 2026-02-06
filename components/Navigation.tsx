@@ -5,12 +5,12 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
 const navLinks = [
-  { href: '/daily', label: 'Daily' },
   { href: '/archive', label: 'Archive' },
   { href: '/domains', label: 'Domains' },
   { href: '/questions', label: 'Questions' },
   { href: '/research', label: 'Research' },
-  { href: '/random', label: 'Random' },
+  { href: '/daily', label: 'Daily', bracketed: true },
+  { href: '/random', label: 'Random', bracketed: true },
   { href: '/about', label: 'About' },
 ];
 
@@ -33,20 +33,19 @@ export default function Navigation() {
         <nav className="hidden md:flex items-center gap-1">
           {navLinks.map((link) => {
             const isActive = pathname === link.href || pathname?.startsWith(link.href + '/');
-            const isRandom = link.href === '/random';
             return (
               <Link
                 key={link.href}
                 href={link.href}
                 className={`pixel-text px-3 py-1.5 transition-all glitch-hover ${
-                  isRandom
+                  link.bracketed
                     ? 'text-accent-bright hover:bg-accent-bright/20'
                     : isActive
                     ? 'text-accent-bright bg-accent-bright/10'
                     : 'text-gray-400 hover:text-foreground hover:bg-gray-100'
                 }`}
               >
-                {isRandom ? `[${link.label}]` : link.label}
+                {link.bracketed ? `[${link.label}]` : link.label}
               </Link>
             );
           })}
@@ -65,21 +64,20 @@ export default function Navigation() {
         <nav className="md:hidden border-t border-gray-300 glass-strong px-4 py-2">
           {navLinks.map((link) => {
             const isActive = pathname === link.href || pathname?.startsWith(link.href + '/');
-            const isRandom = link.href === '/random';
             return (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
                 className={`block pixel-text py-2 transition-colors ${
-                  isRandom
+                  link.bracketed
                     ? 'text-accent-bright'
                     : isActive
                     ? 'text-accent-bright'
                     : 'text-gray-400 hover:text-foreground'
                 }`}
               >
-                {isRandom ? `[${link.label}]` : link.label}
+                {link.bracketed ? `[${link.label}]` : link.label}
               </Link>
             );
           })}
