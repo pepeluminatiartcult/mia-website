@@ -71,6 +71,33 @@ create table hypotheses (
 
 create index research_notes_hypothesis_ref_idx on research_notes(hypothesis_ref);
 
+-- Daily questions table (QOTD)
+create table daily_questions (
+  date date primary key,
+  question_id text not null,
+  question_text text not null,
+  reason text not null,
+  exchange_ids text[] default '{}',
+  answer_of_the_day_id text,
+  tweet_suggestion text,
+  created_at timestamptz not null default now()
+);
+
+create index daily_questions_question_id_idx on daily_questions(question_id);
+
+-- Research reports table
+create table research_reports (
+  id text primary key,
+  report_type text not null,
+  title text not null,
+  summary text not null,
+  content text not null,
+  social_thread text,
+  model_focus text,
+  hypothesis_focus text,
+  created_at timestamptz not null default now()
+);
+
 -- Indexes for common queries
 create index exchanges_domain_code_idx on exchanges(domain_code);
 create index exchanges_model_id_idx on exchanges(model_id);
@@ -82,6 +109,8 @@ alter table questions enable row level security;
 alter table exchanges enable row level security;
 alter table research_notes enable row level security;
 alter table hypotheses enable row level security;
+alter table daily_questions enable row level security;
+alter table research_reports enable row level security;
 
 -- Public read access (anon key can read, but not write)
 create policy "Public read access" on models for select using (true);
@@ -89,6 +118,8 @@ create policy "Public read access" on questions for select using (true);
 create policy "Public read access" on exchanges for select using (true);
 create policy "Public read access" on research_notes for select using (true);
 create policy "Public read access" on hypotheses for select using (true);
+create policy "Public read access" on daily_questions for select using (true);
+create policy "Public read access" on research_reports for select using (true);
 
 -- Seed data: Models
 insert into models (id, name, provider, version, context_window, created_at) values

@@ -73,6 +73,29 @@ export interface Hypothesis {
   created_at: string;
 }
 
+export interface DailyQuestion {
+  date: string;
+  question_id: string;
+  question_text: string;
+  reason: string;
+  exchange_ids: string[];
+  answer_of_the_day_id: string | null;
+  tweet_suggestion: string | null;
+  created_at: string;
+}
+
+export interface ResearchReport {
+  id: string;
+  report_type: string;
+  title: string;
+  summary: string;
+  content: string;
+  social_thread: string | null;
+  model_focus: string | null;
+  hypothesis_focus: string | null;
+  created_at: string;
+}
+
 export interface Exchange {
   id: string;
   question_id: string;

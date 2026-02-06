@@ -55,12 +55,34 @@ interface SyncPayload {
     test_questions?: { question_id: string; target_models: string[]; purpose?: string }[];
     created_at?: string;
   }[];
+  daily_questions?: {
+    date: string;
+    question_id: string;
+    question_text: string;
+    reason: string;
+    exchange_ids?: string[];
+    answer_of_the_day_id?: string;
+    tweet_suggestion?: string;
+  }[];
+  research_reports?: {
+    id: string;
+    report_type: string;
+    title: string;
+    summary: string;
+    content: string;
+    social_thread?: string;
+    model_focus?: string;
+    hypothesis_focus?: string;
+    created_at?: string;
+  }[];
   delete?: {
     exchanges?: string[];
     models?: string[];
     questions?: string[];
     research_notes?: string[];
     hypotheses?: string[];
+    daily_questions?: string[];
+    research_reports?: string[];
   };
 }
 
@@ -78,15 +100,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  if (!body.models && !body.questions && !body.exchanges && !body.research_notes && !body.hypotheses && !body.delete) {
+  if (!body.models && !body.questions && !body.exchanges && !body.research_notes && !body.hypotheses && !body.daily_questions && !body.research_reports && !body.delete) {
     return NextResponse.json(
-      { error: 'Payload must include at least one of: models, questions, exchanges, research_notes, hypotheses, delete' },
+      { error: 'Payload must include at least one of: models, questions, exchanges, research_notes, hypotheses, daily_questions, research_reports, delete' },
       { status: 400 }
     );
   }
 
-  const upserted = { models: 0, questions: 0, exchanges: 0, research_notes: 0, hypotheses: 0 };
-  const deleted = { models: 0, questions: 0, exchanges: 0, research_notes: 0, hypotheses: 0 };
+  const upserted = { models: 0, questions: 0, exchanges: 0, research_notes: 0, hypotheses: 0, daily_questions: 0, research_reports: 0 };
+  const deleted = { models: 0, questions: 0, exchanges: 0, research_notes: 0, hypotheses: 0, daily_questions: 0, research_reports: 0 };
 
   try {
     // Upsert models
@@ -227,6 +249,44 @@ export async function POST(request: NextRequest) {
       upserted.hypotheses = body.hypotheses.length;
     }
 
+    // Upsert daily questions
+    if (body.daily_questions && body.daily_questions.length > 0) {
+      for (const dq of body.daily_questions) {
+        if (!dq.date || !dq.question_id || !dq.question_text || !dq.reason) {
+          return NextResponse.json(
+            { error: 'Each daily_question requires: date, question_id, question_text, reason' },
+            { status: 400 }
+          );
+        }
+      }
+
+      const { error } = await supabaseAdmin
+        .from('daily_questions')
+        .upsert(body.daily_questions, { onConflict: 'date' });
+
+      if (error) throw error;
+      upserted.daily_questions = body.daily_questions.length;
+    }
+
+    // Upsert research reports
+    if (body.research_reports && body.research_reports.length > 0) {
+      for (const report of body.research_reports) {
+        if (!report.id || !report.report_type || !report.title || !report.summary || !report.content) {
+          return NextResponse.json(
+            { error: 'Each research_report requires: id, report_type, title, summary, content' },
+            { status: 400 }
+          );
+        }
+      }
+
+      const { error } = await supabaseAdmin
+        .from('research_reports')
+        .upsert(body.research_reports, { onConflict: 'id' });
+
+      if (error) throw error;
+      upserted.research_reports = body.research_reports.length;
+    }
+
     // Delete records if requested
     if (body.delete) {
       if (body.delete.exchanges && body.delete.exchanges.length > 0) {
@@ -278,6 +338,26 @@ export async function POST(request: NextRequest) {
         if (error) throw error;
         deleted.hypotheses = body.delete.hypotheses.length;
       }
+
+      if (body.delete.daily_questions && body.delete.daily_questions.length > 0) {
+        const { error } = await supabaseAdmin
+          .from('daily_questions')
+          .delete()
+          .in('date', body.delete.daily_questions);
+
+        if (error) throw error;
+        deleted.daily_questions = body.delete.daily_questions.length;
+      }
+
+      if (body.delete.research_reports && body.delete.research_reports.length > 0) {
+        const { error } = await supabaseAdmin
+          .from('research_reports')
+          .delete()
+          .in('id', body.delete.research_reports);
+
+        if (error) throw error;
+        deleted.research_reports = body.delete.research_reports.length;
+      }
     }
 
     // Fetch current DB counts for drift detection
@@ -287,12 +367,16 @@ export async function POST(request: NextRequest) {
       { count: dbQuestions },
       { count: dbResearchNotes },
       { count: dbHypotheses },
+      { count: dbDailyQuestions },
+      { count: dbResearchReports },
     ] = await Promise.all([
       supabaseAdmin.from('exchanges').select('*', { count: 'exact', head: true }),
       supabaseAdmin.from('models').select('*', { count: 'exact', head: true }),
       supabaseAdmin.from('questions').select('*', { count: 'exact', head: true }),
       supabaseAdmin.from('research_notes').select('*', { count: 'exact', head: true }),
       supabaseAdmin.from('hypotheses').select('*', { count: 'exact', head: true }),
+      supabaseAdmin.from('daily_questions').select('*', { count: 'exact', head: true }),
+      supabaseAdmin.from('research_reports').select('*', { count: 'exact', head: true }),
     ]);
 
     return NextResponse.json({
@@ -304,6 +388,8 @@ export async function POST(request: NextRequest) {
         questions: dbQuestions ?? 0,
         research_notes: dbResearchNotes ?? 0,
         hypotheses: dbHypotheses ?? 0,
+        daily_questions: dbDailyQuestions ?? 0,
+        research_reports: dbResearchReports ?? 0,
       },
     });
   } catch (err: unknown) {

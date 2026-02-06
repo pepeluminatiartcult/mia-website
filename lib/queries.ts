@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { Exchange, Hypothesis, Model, Question, ResearchNote } from './types';
+import { DailyQuestion, Exchange, Hypothesis, Model, Question, ResearchNote, ResearchReport } from './types';
 import { exchanges as seedExchanges, models as seedModels, questions as seedQuestions } from './seed-data';
 
 // Transform a Supabase row into the Exchange shape the UI expects
@@ -221,6 +221,65 @@ export async function getResearchNoteCounts(): Promise<Record<string, { notes: n
   return Object.fromEntries(
     Object.entries(counts).map(([k, v]) => [k, { notes: v.notes, exchanges: v.exchanges.size }])
   );
+}
+
+// === Daily Questions (QOTD) ===
+
+export async function getDailyQuestion(date?: string): Promise<DailyQuestion | null> {
+  if (date) {
+    const { data, error } = await supabase
+      .from('daily_questions')
+      .select('*')
+      .eq('date', date)
+      .single();
+    if (error || !data) return null;
+    return data as DailyQuestion;
+  }
+  // Get today's (most recent)
+  const { data, error } = await supabase
+    .from('daily_questions')
+    .select('*')
+    .order('date', { ascending: false })
+    .limit(1)
+    .single();
+  if (error || !data) return null;
+  return data as DailyQuestion;
+}
+
+export async function getDailyQuestionArchive(): Promise<DailyQuestion[]> {
+  const { data, error } = await supabase
+    .from('daily_questions')
+    .select('*')
+    .order('date', { ascending: false });
+  if (error || !data) return [];
+  return data as DailyQuestion[];
+}
+
+export async function getDailyQuestionExchanges(date: string): Promise<Exchange[]> {
+  const dq = await getDailyQuestion(date);
+  if (!dq || !dq.exchange_ids || dq.exchange_ids.length === 0) return [];
+  return getExchangesByIds(dq.exchange_ids);
+}
+
+// === Research Reports ===
+
+export async function getResearchReports(): Promise<ResearchReport[]> {
+  const { data, error } = await supabase
+    .from('research_reports')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error || !data) return [];
+  return data as ResearchReport[];
+}
+
+export async function getResearchReportById(id: string): Promise<ResearchReport | null> {
+  const { data, error } = await supabase
+    .from('research_reports')
+    .select('*')
+    .eq('id', id)
+    .single();
+  if (error || !data) return null;
+  return data as ResearchReport;
 }
 
 export async function getStats() {

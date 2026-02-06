@@ -1,15 +1,16 @@
 import Link from 'next/link';
 import { domains } from '@/lib/domains';
-import { getExchanges, getStats } from '@/lib/queries';
+import { getExchanges, getStats, getDailyQuestion } from '@/lib/queries';
 import ExchangeCard from '@/components/ExchangeCard';
 import CollageBackground from '@/components/CollageBackground';
 
 export const revalidate = 60; // revalidate every 60 seconds
 
 export default async function Home() {
-  const [allExchanges, stats] = await Promise.all([
+  const [allExchanges, stats, dailyQ] = await Promise.all([
     getExchanges(),
     getStats(),
+    getDailyQuestion(),
   ]);
   const latestExchanges = allExchanges.slice(0, 5);
 
@@ -60,6 +61,21 @@ export default async function Home() {
             </div>
           ))}
         </section>
+
+        {/* Today's Question */}
+        {dailyQ && (
+          <section className="my-6">
+            <Link href="/daily" className="group block px-8 py-6 transition-all hover:brightness-110" style={{ background: '#0000aa' }}>
+              <div className="pixel-text text-white/60 mb-2">TODAY&apos;S QUESTION — {dailyQ.question_id}</div>
+              <p className="font-mono text-sm sm:text-base leading-relaxed text-white mb-3 line-clamp-2">
+                {dailyQ.question_text}
+              </p>
+              <span className="pixel-text text-white/80 group-hover:text-white transition-colors">
+                See how {dailyQ.exchange_ids?.length ?? 6} AI models answered &rarr;
+              </span>
+            </Link>
+          </section>
+        )}
 
         {/* Latest Exchanges */}
         <section className="py-12">
