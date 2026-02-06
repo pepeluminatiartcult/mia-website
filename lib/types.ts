@@ -48,6 +48,15 @@ export interface Contradiction {
   severity: 'low' | 'medium' | 'high';
 }
 
+export interface ResearchNote {
+  id: string;
+  exchange_id: string;
+  note_text: string;
+  note_type: string;
+  hypothesis_ref?: string;
+  created_at: string;
+}
+
 export interface Exchange {
   id: string;
   question_id: string;

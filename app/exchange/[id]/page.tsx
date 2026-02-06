@@ -1,8 +1,9 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getExchangeById, getExchanges } from '@/lib/queries';
+import { getExchangeById, getExchanges, getResearchNotes } from '@/lib/queries';
 import ExchangeDetail from '@/components/ExchangeDetail';
 import RelatedExchanges, { computeRelatedExchanges } from '@/components/RelatedExchanges';
+import ResearchNotes from '@/components/ResearchNotes';
 import CollageBackground from '@/components/CollageBackground';
 
 export const revalidate = 60;
@@ -44,9 +45,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function ExchangePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [exchange, allExchanges] = await Promise.all([
+  const [exchange, allExchanges, researchNotes] = await Promise.all([
     getExchangeById(id),
     getExchanges(),
+    getResearchNotes(id),
   ]);
 
   if (!exchange) {
@@ -63,6 +65,7 @@ export default async function ExchangePage({ params }: { params: Promise<{ id: s
     <>
       <CollageBackground seed={exchange.id} density="sparse" />
       <ExchangeDetail exchange={exchange} prevId={prevId} nextId={nextId} />
+      <ResearchNotes notes={researchNotes} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-8 relative z-10">
         <RelatedExchanges related={relatedExchanges} />
       </div>

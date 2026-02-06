@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { Exchange, Model, Question } from './types';
+import { Exchange, Model, Question, ResearchNote } from './types';
 import { exchanges as seedExchanges, models as seedModels, questions as seedQuestions } from './seed-data';
 
 // Transform a Supabase row into the Exchange shape the UI expects
@@ -141,6 +141,17 @@ export async function getQuestions(): Promise<Question[]> {
   }
 
   return data as Question[];
+}
+
+export async function getResearchNotes(exchangeId: string): Promise<ResearchNote[]> {
+  const { data, error } = await supabase
+    .from('research_notes')
+    .select('*')
+    .eq('exchange_id', exchangeId)
+    .order('created_at', { ascending: true });
+
+  if (error || !data) return [];
+  return data as ResearchNote[];
 }
 
 export async function getStats() {

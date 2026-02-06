@@ -46,6 +46,18 @@ create table exchanges (
   notable_claims text[] not null default '{}'
 );
 
+-- Research notes table
+create table research_notes (
+  id text primary key,
+  exchange_id text not null references exchanges(id) on delete cascade,
+  note_text text not null,
+  note_type text not null,
+  hypothesis_ref text,
+  created_at timestamptz not null default now()
+);
+
+create index research_notes_exchange_id_idx on research_notes(exchange_id);
+
 -- Indexes for common queries
 create index exchanges_domain_code_idx on exchanges(domain_code);
 create index exchanges_model_id_idx on exchanges(model_id);
@@ -55,11 +67,13 @@ create index exchanges_created_at_idx on exchanges(created_at desc);
 alter table models enable row level security;
 alter table questions enable row level security;
 alter table exchanges enable row level security;
+alter table research_notes enable row level security;
 
 -- Public read access (anon key can read, but not write)
 create policy "Public read access" on models for select using (true);
 create policy "Public read access" on questions for select using (true);
 create policy "Public read access" on exchanges for select using (true);
+create policy "Public read access" on research_notes for select using (true);
 
 -- Seed data: Models
 insert into models (id, name, provider, version, context_window, created_at) values
