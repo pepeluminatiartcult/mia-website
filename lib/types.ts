@@ -57,6 +57,22 @@ export interface ResearchNote {
   created_at: string;
 }
 
+export interface HypothesisTestQuestion {
+  question_id: string;
+  target_models: string[];
+  purpose?: string;
+}
+
+export interface Hypothesis {
+  id: string;
+  title: string;
+  status: string;
+  confidence: number;
+  rationale: string;
+  test_questions: HypothesisTestQuestion[];
+  created_at: string;
+}
+
 export interface Exchange {
   id: string;
   question_id: string;

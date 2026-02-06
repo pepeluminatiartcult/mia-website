@@ -58,6 +58,19 @@ create table research_notes (
 
 create index research_notes_exchange_id_idx on research_notes(exchange_id);
 
+-- Hypotheses table
+create table hypotheses (
+  id text primary key,
+  title text not null,
+  status text not null default 'active',
+  confidence float not null default 0.5,
+  rationale text not null,
+  test_questions jsonb default '[]',
+  created_at timestamptz not null default now()
+);
+
+create index research_notes_hypothesis_ref_idx on research_notes(hypothesis_ref);
+
 -- Indexes for common queries
 create index exchanges_domain_code_idx on exchanges(domain_code);
 create index exchanges_model_id_idx on exchanges(model_id);
@@ -68,12 +81,14 @@ alter table models enable row level security;
 alter table questions enable row level security;
 alter table exchanges enable row level security;
 alter table research_notes enable row level security;
+alter table hypotheses enable row level security;
 
 -- Public read access (anon key can read, but not write)
 create policy "Public read access" on models for select using (true);
 create policy "Public read access" on questions for select using (true);
 create policy "Public read access" on exchanges for select using (true);
 create policy "Public read access" on research_notes for select using (true);
+create policy "Public read access" on hypotheses for select using (true);
 
 -- Seed data: Models
 insert into models (id, name, provider, version, context_window, created_at) values

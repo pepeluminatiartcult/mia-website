@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { ResearchNote } from '@/lib/types';
 
 const typeColors: Record<string, { bg: string; text: string; border: string }> = {
@@ -44,9 +45,12 @@ export default function ResearchNotes({ notes }: { notes: ResearchNote[] }) {
                   {note.note_type}
                 </span>
                 {note.hypothesis_ref && (
-                  <span className="inline-block px-2 py-0.5 text-xs font-mono border border-gray-300 text-gray-400">
+                  <Link
+                    href={`/research/${note.hypothesis_ref}`}
+                    className="inline-block px-2 py-0.5 text-xs font-mono border border-gray-300 text-gray-400 hover:border-accent-bright hover:text-accent-bright transition-colors"
+                  >
                     {note.hypothesis_ref}
-                  </span>
+                  </Link>
                 )}
                 <span className="ml-auto text-xs font-mono text-gray-600">
                   {formatDate(note.created_at)}

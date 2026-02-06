@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { Exchange, Model, Question, ResearchNote } from './types';
+import { Exchange, Hypothesis, Model, Question, ResearchNote } from './types';
 import { exchanges as seedExchanges, models as seedModels, questions as seedQuestions } from './seed-data';
 
 // Transform a Supabase row into the Exchange shape the UI expects
@@ -152,6 +152,75 @@ export async function getResearchNotes(exchangeId: string): Promise<ResearchNote
 
   if (error || !data) return [];
   return data as ResearchNote[];
+}
+
+export async function getHypotheses(): Promise<Hypothesis[]> {
+  const { data, error } = await supabase
+    .from('hypotheses')
+    .select('*')
+    .order('id', { ascending: true });
+  if (error || !data) return [];
+  return data as Hypothesis[];
+}
+
+export async function getHypothesisById(id: string): Promise<Hypothesis | null> {
+  const { data, error } = await supabase
+    .from('hypotheses')
+    .select('*')
+    .eq('id', id)
+    .single();
+  if (error || !data) return null;
+  return data as Hypothesis;
+}
+
+export async function getResearchNotesByHypothesis(hypothesisRef: string): Promise<ResearchNote[]> {
+  const { data, error } = await supabase
+    .from('research_notes')
+    .select('*')
+    .eq('hypothesis_ref', hypothesisRef)
+    .order('created_at', { ascending: true });
+  if (error || !data) return [];
+  return data as ResearchNote[];
+}
+
+export async function getExchangesByIds(ids: string[]): Promise<Exchange[]> {
+  if (ids.length === 0) return [];
+  const { data, error } = await supabase
+    .from('exchanges')
+    .select('*')
+    .in('id', ids)
+    .order('created_at', { ascending: false });
+  if (error || !data) return [];
+  return data.map(toExchange);
+}
+
+export async function getQuestionsByIds(ids: string[]): Promise<Question[]> {
+  if (ids.length === 0) return [];
+  const { data, error } = await supabase
+    .from('questions')
+    .select('*')
+    .in('id', ids);
+  if (error || !data) return [];
+  return data as Question[];
+}
+
+export async function getResearchNoteCounts(): Promise<Record<string, { notes: number; exchanges: number }>> {
+  const { data, error } = await supabase
+    .from('research_notes')
+    .select('hypothesis_ref, exchange_id');
+  if (error || !data) return {};
+
+  const counts: Record<string, { notes: number; exchanges: Set<string> }> = {};
+  for (const row of data) {
+    if (!row.hypothesis_ref) continue;
+    if (!counts[row.hypothesis_ref]) counts[row.hypothesis_ref] = { notes: 0, exchanges: new Set() };
+    counts[row.hypothesis_ref].notes++;
+    counts[row.hypothesis_ref].exchanges.add(row.exchange_id);
+  }
+
+  return Object.fromEntries(
+    Object.entries(counts).map(([k, v]) => [k, { notes: v.notes, exchanges: v.exchanges.size }])
+  );
 }
 
 export async function getStats() {

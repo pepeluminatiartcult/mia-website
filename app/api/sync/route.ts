@@ -46,11 +46,21 @@ interface SyncPayload {
     hypothesis_ref?: string;
     created_at?: string;
   }[];
+  hypotheses?: {
+    id: string;
+    title: string;
+    status?: string;
+    confidence?: number;
+    rationale: string;
+    test_questions?: { question_id: string; target_models: string[]; purpose?: string }[];
+    created_at?: string;
+  }[];
   delete?: {
     exchanges?: string[];
     models?: string[];
     questions?: string[];
     research_notes?: string[];
+    hypotheses?: string[];
   };
 }
 
@@ -68,15 +78,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  if (!body.models && !body.questions && !body.exchanges && !body.research_notes && !body.delete) {
+  if (!body.models && !body.questions && !body.exchanges && !body.research_notes && !body.hypotheses && !body.delete) {
     return NextResponse.json(
-      { error: 'Payload must include at least one of: models, questions, exchanges, research_notes, delete' },
+      { error: 'Payload must include at least one of: models, questions, exchanges, research_notes, hypotheses, delete' },
       { status: 400 }
     );
   }
 
-  const upserted = { models: 0, questions: 0, exchanges: 0, research_notes: 0 };
-  const deleted = { models: 0, questions: 0, exchanges: 0, research_notes: 0 };
+  const upserted = { models: 0, questions: 0, exchanges: 0, research_notes: 0, hypotheses: 0 };
+  const deleted = { models: 0, questions: 0, exchanges: 0, research_notes: 0, hypotheses: 0 };
 
   try {
     // Upsert models
@@ -198,6 +208,25 @@ export async function POST(request: NextRequest) {
       upserted.research_notes = body.research_notes.length;
     }
 
+    // Upsert hypotheses
+    if (body.hypotheses && body.hypotheses.length > 0) {
+      for (const hypothesis of body.hypotheses) {
+        if (!hypothesis.id || !hypothesis.title || !hypothesis.rationale) {
+          return NextResponse.json(
+            { error: 'Each hypothesis requires: id, title, rationale' },
+            { status: 400 }
+          );
+        }
+      }
+
+      const { error } = await supabaseAdmin
+        .from('hypotheses')
+        .upsert(body.hypotheses, { onConflict: 'id' });
+
+      if (error) throw error;
+      upserted.hypotheses = body.hypotheses.length;
+    }
+
     // Delete records if requested
     if (body.delete) {
       if (body.delete.exchanges && body.delete.exchanges.length > 0) {
@@ -239,6 +268,16 @@ export async function POST(request: NextRequest) {
         if (error) throw error;
         deleted.research_notes = body.delete.research_notes.length;
       }
+
+      if (body.delete.hypotheses && body.delete.hypotheses.length > 0) {
+        const { error } = await supabaseAdmin
+          .from('hypotheses')
+          .delete()
+          .in('id', body.delete.hypotheses);
+
+        if (error) throw error;
+        deleted.hypotheses = body.delete.hypotheses.length;
+      }
     }
 
     // Fetch current DB counts for drift detection
@@ -247,11 +286,13 @@ export async function POST(request: NextRequest) {
       { count: dbModels },
       { count: dbQuestions },
       { count: dbResearchNotes },
+      { count: dbHypotheses },
     ] = await Promise.all([
       supabaseAdmin.from('exchanges').select('*', { count: 'exact', head: true }),
       supabaseAdmin.from('models').select('*', { count: 'exact', head: true }),
       supabaseAdmin.from('questions').select('*', { count: 'exact', head: true }),
       supabaseAdmin.from('research_notes').select('*', { count: 'exact', head: true }),
+      supabaseAdmin.from('hypotheses').select('*', { count: 'exact', head: true }),
     ]);
 
     return NextResponse.json({
@@ -262,6 +303,7 @@ export async function POST(request: NextRequest) {
         models: dbModels ?? 0,
         questions: dbQuestions ?? 0,
         research_notes: dbResearchNotes ?? 0,
+        hypotheses: dbHypotheses ?? 0,
       },
     });
   } catch (err: unknown) {

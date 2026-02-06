@@ -8,6 +8,7 @@ const navLinks = [
   { href: '/archive', label: 'Archive' },
   { href: '/domains', label: 'Domains' },
   { href: '/questions', label: 'Questions' },
+  { href: '/research', label: 'Research' },
   { href: '/random', label: 'Random' },
   { href: '/about', label: 'About' },
 ];

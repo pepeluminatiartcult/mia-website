@@ -21,7 +21,7 @@ export default function Footer() {
           </div>
 
           <nav className="flex gap-1">
-            {['Archive', 'Domains', 'About'].map((label) => (
+            {['Archive', 'Domains', 'Research', 'About'].map((label) => (
               <Link
                 key={label}
                 href={`/${label.toLowerCase()}`}
