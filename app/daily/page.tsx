@@ -118,20 +118,6 @@ export default async function DailyPage() {
               </section>
             )}
 
-            {/* Tweet Suggestion */}
-            {todayQ.tweet_suggestion && (
-              <section className="mb-12">
-                <div className="mb-4 flex items-center gap-3">
-                  <div className="pixel-text text-gray-600">TWEET SUGGESTION</div>
-                  <div className="flex-1 h-px bg-gray-300" />
-                </div>
-                <div className="glass p-4 max-w-2xl">
-                  <p className="font-mono text-sm text-foreground leading-relaxed whitespace-pre-line">
-                    {todayQ.tweet_suggestion}
-                  </p>
-                </div>
-              </section>
-            )}
           </>
         ) : (
           <div className="glass p-8 text-center mb-12">
