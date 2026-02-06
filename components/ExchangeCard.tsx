@@ -1,20 +1,8 @@
 import Link from 'next/link';
 import { Exchange } from '@/lib/types';
+import LocalTimestamp from '@/components/LocalTimestamp';
 
 export default function ExchangeCard({ exchange }: { exchange: Exchange }) {
-  const dt = new Date(exchange.created_at);
-  const date = dt.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  });
-  const time = dt.toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
-    timeZoneName: 'short',
-  });
-
   return (
     <Link
       href={`/exchange/${exchange.id}`}
@@ -29,9 +17,7 @@ export default function ExchangeCard({ exchange }: { exchange: Exchange }) {
             {exchange.domain_code}
           </span>
         </div>
-        <span className="pixel-text text-gray-600 shrink-0">
-          {date} {time}
-        </span>
+        <LocalTimestamp iso={exchange.created_at} className="pixel-text text-gray-600 shrink-0" />
       </div>
 
       <p className="font-mono text-sm leading-relaxed text-gray-400 group-hover:text-foreground transition-colors mb-3 line-clamp-3 sm:line-clamp-2">
