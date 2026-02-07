@@ -85,7 +85,7 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
           {exchanges.length > 0 ? (
             <div className="space-y-2">
               {exchanges.map(exchange => (
-                <ExchangeCard key={exchange.id} exchange={exchange} />
+                <ExchangeCard key={exchange.id} exchange={exchange} showResponse />
               ))}
             </div>
           ) : (

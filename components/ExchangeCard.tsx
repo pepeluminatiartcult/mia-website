@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Exchange } from '@/lib/types';
 import LocalTimestamp from '@/components/LocalTimestamp';
 
-export default function ExchangeCard({ exchange }: { exchange: Exchange }) {
+export default function ExchangeCard({ exchange, showResponse }: { exchange: Exchange; showResponse?: boolean }) {
   return (
     <Link
       href={`/exchange/${exchange.id}`}
@@ -21,7 +21,7 @@ export default function ExchangeCard({ exchange }: { exchange: Exchange }) {
       </div>
 
       <p className="font-mono text-sm leading-relaxed text-gray-400 group-hover:text-foreground transition-colors mb-3 line-clamp-3 sm:line-clamp-2">
-        {exchange.question_text}
+        {showResponse ? exchange.response_text : exchange.question_text}
       </p>
 
       <div className="flex items-center gap-3">
