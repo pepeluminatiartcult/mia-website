@@ -17,7 +17,11 @@ create table questions (
   text text not null,
   domain_codes text[] not null default '{}',
   times_asked integer not null default 0,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  added_date date,
+  origin text,
+  wave text,
+  hypothesis_ref text
 );
 
 -- Exchanges table

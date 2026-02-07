@@ -21,6 +21,10 @@ export interface Question {
   domain_codes: string[];
   times_asked: number;
   created_at: string;
+  added_date?: string;
+  origin?: string;
+  wave?: string;
+  hypothesis_ref?: string;
 }
 
 export interface Analysis {

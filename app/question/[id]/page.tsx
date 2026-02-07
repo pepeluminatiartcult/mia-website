@@ -70,6 +70,24 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
             </p>
           </div>
 
+          {(question?.added_date || question?.origin) && (
+            <div className="flex flex-wrap items-center gap-3 pixel-text text-gray-600 mb-3">
+              {question.added_date && (
+                <span>Added {new Date(question.added_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+              )}
+              {question.origin && (
+                <><span className="text-gray-400">|</span><span>{question.origin}</span></>
+              )}
+              {question.hypothesis_ref && (
+                <><span className="text-gray-400">|</span>
+                <Link href={`/research/${question.hypothesis_ref}`} className="hover:text-accent-bright transition-colors">{question.hypothesis_ref}</Link></>
+              )}
+              {question.wave && (
+                <><span className="text-gray-400">|</span><span className="uppercase">{question.wave}</span></>
+              )}
+            </div>
+          )}
+
           <div className="flex flex-wrap items-center gap-4 pixel-text text-gray-600">
             <span>{exchanges.length} Exchange{exchanges.length !== 1 ? 's' : ''}</span>
             <span className="text-gray-400">|</span>

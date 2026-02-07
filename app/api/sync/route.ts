@@ -14,6 +14,10 @@ interface SyncPayload {
     text: string;
     domain_codes: string[];
     times_asked?: number;
+    added_date?: string;
+    origin?: string;
+    wave?: string;
+    hypothesis_ref?: string;
   }[];
   exchanges?: {
     id: string;
@@ -151,14 +155,20 @@ export async function POST(request: NextRequest) {
           .single();
 
         if (existing) {
-          // Bump times_asked
+          // Bump times_asked + conditionally update provenance
+          const updateFields: Record<string, unknown> = {
+            text: question.text,
+            domain_codes: question.domain_codes,
+            times_asked: existing.times_asked + (question.times_asked ?? 1),
+          };
+          if (question.added_date !== undefined) updateFields.added_date = question.added_date;
+          if (question.origin !== undefined) updateFields.origin = question.origin;
+          if (question.wave !== undefined) updateFields.wave = question.wave;
+          if (question.hypothesis_ref !== undefined) updateFields.hypothesis_ref = question.hypothesis_ref;
+
           const { error } = await supabaseAdmin
             .from('questions')
-            .update({
-              text: question.text,
-              domain_codes: question.domain_codes,
-              times_asked: existing.times_asked + (question.times_asked ?? 1),
-            })
+            .update(updateFields)
             .eq('id', question.id);
 
           if (error) throw error;
@@ -170,6 +180,10 @@ export async function POST(request: NextRequest) {
               text: question.text,
               domain_codes: question.domain_codes,
               times_asked: question.times_asked ?? 1,
+              added_date: question.added_date,
+              origin: question.origin,
+              wave: question.wave,
+              hypothesis_ref: question.hypothesis_ref,
             });
 
           if (error) throw error;
