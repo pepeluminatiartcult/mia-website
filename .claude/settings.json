@@ -19,6 +19,24 @@
             "command": "cd ~/mia-website && npx tsc --noEmit --pretty 2>&1 | head -20"
           }
         ]
+      },
+      {
+        "matcher": "tool_input.file_path matches '/mia/content/.*\\.md$'",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/mia/scripts/hook-check-patterns.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "tool_input.file_path matches '/MIA/Content/.*\\.md$'",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/mia/scripts/hook-check-patterns.sh"
+          }
+        ]
       }
     ]
   }

@@ -255,12 +255,9 @@ export async function getModelStats(): Promise<ModelStats[]> {
     .select('model_id, model_name, coherence_score, novelty_score, domain_code');
   if (error || !data) return [];
 
-  // Normalize versioned model IDs (e.g. claude-opus-4-20250514 → claude-opus-4)
-  const normalizeModelId = (id: string): string => id.replace(/-\d{8}$/, '');
-
   const map: Record<string, { model_name: string; count: number; coherence_sum: number; novelty_sum: number; domains: Set<string> }> = {};
   for (const row of data) {
-    const modelId = normalizeModelId(row.model_id);
+    const modelId = row.model_id;
     if (!map[modelId]) {
       map[modelId] = { model_name: row.model_name, count: 0, coherence_sum: 0, novelty_sum: 0, domains: new Set() };
     }

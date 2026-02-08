@@ -64,7 +64,7 @@ Openclaw uses 2-4 letter codes. These are canonical:
 
 **Payload fields (all optional):**
 - `models[]` — upsert models
-- `questions[]` — upsert questions (increments times_asked)
+- `questions[]` — upsert questions (increments times_asked; optional provenance: added_date, origin, wave, hypothesis_ref)
 - `exchanges[]` — upsert exchanges
 - `research_notes[]` — upsert research notes (requires: id, exchange_id, note_text, note_type; optional: hypothesis_ref, created_at)
 - `hypotheses[]` — upsert hypotheses (requires: id, title, rationale; optional: status, confidence, test_questions, created_at)
